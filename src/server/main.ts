@@ -17,7 +17,7 @@ app.get('/api/rooms', (req, res) => {
 
 app.use('/', express.static(path.join(__dirname, '..', 'app')));
 
-app.listen(port, 'localhost', () => {
+app.listen(port, '127.0.0.1', () => {
     console.log(`Server is running on port ${port}`);
 });
 
