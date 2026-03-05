@@ -26,6 +26,9 @@ html {
 body {
     padding: 64px;
     padding-top: 128px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #greet {
@@ -33,6 +36,8 @@ body {
     font-size: 1.75rem;
     padding: 0;
     margin: 0;
+    margin-bottom: 32px;
+    align-self: flex-start;
 }
 
 #name {
@@ -41,6 +46,17 @@ body {
 
 #rooms {
     display: grid;
-    grid-template-columns: repeat(3, 128px);
-    grid-template-rows: repeat(3, 128px);
+    grid-template-columns: repeat(8, 128px);
+    grid-template-rows: repeat(5, 128px);
+    gap: 16px;
+}
+
+#rooms > div.room {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 16px;
 }

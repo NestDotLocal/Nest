@@ -10,6 +10,11 @@ app.post('/api/nest/reset', (req, res) => {
     res.status(200).json({ message: 'Database reset successfully' });
 });
 
+app.get('/api/rooms', (req, res) => {
+    const rooms = db.query('SELECT * FROM rooms').all();
+    res.status(200).json(rooms);
+});
+
 app.use('/', express.static(path.join(__dirname, '..', 'app')));
 
 app.listen(port, 'localhost', () => {
