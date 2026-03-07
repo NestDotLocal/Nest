@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nest — Style Test</title>
+    <link rel="stylesheet" href="/styles/design-system.css">
+    <link rel="stylesheet" href="/styles/base.css">
+    <link rel="stylesheet" href="/styles/typography.css">
+    <link rel="stylesheet" href="/styles/components/buttons.css">
+    <link rel="stylesheet" href="/styles/components/inputs.css">
+    <link rel="stylesheet" href="/styles/components/controls.css">
+
+    <style>
+        body {
+            padding: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Heading 1</h1>
+    <h2>Heading 2</h2>
+    <h3>Heading 3</h3>
+    <h4>Heading 4</h4>
+    <h5>Heading 5</h5>
+    <h6>Heading 6</h6>
+
+    <hr>
+
+    <p>This is a paragraph. Track what you're building, one entry at a time. Nest keeps everything organized so you can
+        focus on what matters most.</p>
+    <p>Another paragraph. A quiet space to write without an agenda. Your thoughts, your pace, your nest.</p>
+    <p>Once again a paragraph. It's just here to tell you that there is one style changed on this entire page: body has
+        a 16px padding. 😁 <= That emoji was rendered using your system's default font (or fallback to Noto Color
+            Emoji).</p>
+
+            <hr>
+
+            <p class="section-label">Section label</p>
+            <p class="section-label">Rooms</p>
+            <p class="section-label">Recent entries</p>
+
+            <hr>
+
+            <button class="btn primary">This is a button</button>
+            <button class="btn secondary lg">, this one's secondary and big</button>
+            <button class="btn primary sm" disabled>...and this one's disabled and small!</button>
+
+            <hr>
+
+            <!-- Text input -->
+            <input class="input" type="text" placeholder="Entry title...">
+
+            <!-- Text input disabled -->
+            <input class="input" type="text" placeholder="Disabled" disabled>
+
+            <!-- Small -->
+            <input class="input sm" type="text" placeholder="Small input...">
+
+            <!-- Large -->
+            <input class="input lg" type="text" placeholder="Large input...">
+
+            <!-- Textarea -->
+            <textarea class="input" placeholder="Write something..."></textarea>
+
+            <!-- Textarea large -->
+            <textarea class="input lg" placeholder="Write something..."></textarea>
+
+            <hr>
+
+            <!-- Toggles -->
+            <input class="toggle" type="checkbox">
+            <input class="toggle" type="checkbox" checked>
+            <input class="toggle" type="checkbox" disabled>
+
+            <!-- Checkboxes -->
+            <input class="checkbox" type="checkbox">
+            <input class="checkbox" type="checkbox" checked>
+            <input class="checkbox" type="checkbox" disabled>
+</body>
+
+</html>
