@@ -1,7 +1,7 @@
 import { Router } from 'express';
+import { type ViteDevServer } from 'vite';
+import fs from 'node:fs';
 import path from 'node:path';
-
-const base = path.resolve('src/rooms/notes/frontend');
 
 // API Router
 const apiRouter = Router();
@@ -10,11 +10,28 @@ apiRouter.get('/', (req, res) => {
     res.json({ room: 'notes', status: 'ok' });
 });
 
+export { apiRouter as api };
+
 // Frontend Router
-const frontendRouter = Router();
+export const createFrontend = (vite?: ViteDevServer) => {
+    const router = Router();
 
-frontendRouter.get('/', (req, res) => {
-    res.sendFile(path.join(base, 'index.html'));
-});
+    router.get('/', async (req, res, next) => {
+        try {
+            let html = fs.readFileSync(
+                path.resolve('src/rooms/notes/frontend/index.html'), 'utf-8'
+            );
+            if (vite) {
+                html = await vite.transformIndexHtml(req.originalUrl, html);
+            }
+            res.status(200).set({ 'Content-Type': 'text/html' }).send(html);
+        } catch (e) {
+            next(e);
+        }
+    });
 
-export { apiRouter as api, frontendRouter as frontend };
+    // Let everything else (assets, scripts) fall through to Vite
+    router.use((req, res, next) => next());
+
+    return router;
+};

@@ -1,8 +1,9 @@
 import { type Express } from 'express';
+import { type ViteDevServer } from 'vite';
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const loadApps = async (app: Express) => {
+export const loadApps = async (app: Express, vite?: ViteDevServer) => {
     const appsPath = path.resolve('src/rooms');
     if (!fs.existsSync(appsPath)) return;
 
@@ -29,7 +30,7 @@ export const loadApps = async (app: Express) => {
 
         try {
             const module = await import(mainPath);
-            const { api, frontend } = module;
+            const { api, createFrontend } = module;
 
             if (api) {
                 app.use(`/api/${roomName}`, api);
@@ -38,11 +39,12 @@ export const loadApps = async (app: Express) => {
                 console.warn(`[API] No api export for: ${roomName}`);
             }
 
-            if (frontend) {
-                app.use(`/${roomName}`, frontend);
+            if (createFrontend) {
+                const router = createFrontend(vite);
+                app.use(`/${roomName}`, router);
                 console.log(`[Frontend] Loaded: /${roomName}`);
             } else {
-                console.warn(`[Frontend] No frontend export for: ${roomName}`);
+                console.warn(`[Frontend] No createFrontend export for: ${roomName}`);
             }
 
         } catch (err) {
