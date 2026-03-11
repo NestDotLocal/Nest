@@ -2,7 +2,7 @@ import Database from "bun:sqlite";
 import fs from "fs";
 import path from "path";
 
-const dbPath = path.join(__dirname, "nest.db");
+const dbPath = path.join(__dirname, '..', '..', 'nest', "nest.db");
 let db = new Database(dbPath);
 
 function initializeDatabase() {
