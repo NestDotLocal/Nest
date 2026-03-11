@@ -15,7 +15,8 @@
         "@milkdown/preset-commonmark": "^7.19.0",
         "@milkdown/theme-nord": "^7.19.0",
         "@types/express": "^5.0.6",
-        "express": "^5.2.1"
+        "express": "^5.2.1",
+        "gray-matter": "^4.0.3"
     },
     "scripts": {
         "dev": "bun --watch src/main.ts",
