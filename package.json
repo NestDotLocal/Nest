@@ -16,7 +16,7 @@
         "@milkdown/theme-nord": "^7.19.0",
         "@types/express": "^5.0.6",
         "express": "^5.2.1",
-        "frontmatter": "^0.0.3"
+        "front-matter": "^4.0.2"
     },
     "scripts": {
         "dev": "bun --watch src/main.ts",
