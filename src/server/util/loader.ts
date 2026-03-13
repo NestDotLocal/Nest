@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 export const loadApps = async (app: Express, vite?: ViteDevServer) => {
-    const appsPath = path.resolve("nest/rooms");
+    const appsPath = path.resolve("src/rooms");
     if (!fs.existsSync(appsPath)) return;
 
     const reserved = ["static", "api", "favicon.ico"];
