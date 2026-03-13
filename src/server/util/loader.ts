@@ -30,7 +30,7 @@ export const loadApps = async (app: Express, vite?: ViteDevServer) => {
 
         try {
             const module = await import(mainPath);
-            const { api, createFrontend } = module;
+            const { api, createFrontend, setup } = module;
 
             if (api) {
                 app.use(`/api/${roomName}`, api);
@@ -47,6 +47,10 @@ export const loadApps = async (app: Express, vite?: ViteDevServer) => {
                 console.warn(
                     `[Frontend] No createFrontend export for: ${roomName}`,
                 );
+            }
+
+            if (setup) {
+                await setup();
             }
         } catch (err) {
             console.error(`[Router] Failed to load: ${roomName}`, err);
