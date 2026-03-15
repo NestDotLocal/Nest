@@ -2,12 +2,21 @@ import { Router } from "express";
 import { type ViteDevServer } from "vite";
 import fs from "node:fs";
 import path from "node:path";
+import frontmatter from "front-matter";
+import db from "../../db/main";
+
+const notesDir = path.resolve("nest/storage/notes");
 
 // API Router
 const apiRouter = Router();
 
 apiRouter.get("/", (req, res) => {
     res.json({ room: "notes", status: "ok" });
+});
+
+apiRouter.get("/notes", (req, res) => {
+    const notes = db.instance.query("SELECT * FROM storage").all();
+    res.json(notes);
 });
 
 export { apiRouter as api };
@@ -35,4 +44,31 @@ export const createFrontend = (vite?: ViteDevServer) => {
     router.use((req, res, next) => next());
 
     return router;
+};
+
+export const setup = async () => {
+    if (!fs.existsSync(notesDir)) {
+        fs.mkdirSync(notesDir, { recursive: true });
+        console.log('[Notes] Created storage directory');
+        return;
+    }
+
+    const entries = fs.readdirSync(notesDir, { withFileTypes: true, recursive: true });
+
+    for (const entry of entries) {
+        const filePath = path.join(notesDir, entry.name);
+        db.instance.run(`
+            INSERT OR IGNORE INTO storage (uuid, room, path, type, title, color, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+            entry.name,
+            "notes",
+            filePath,
+            entry.isDirectory() ? "folder" : "file",
+            entry.name,
+            "#000000",
+            new Date().toISOString(),
+            new Date().toISOString(),
+        ]);
+    }
 };

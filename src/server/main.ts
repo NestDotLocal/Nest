@@ -19,7 +19,7 @@ app.post("/api/nest/reset", (req, res) => {
 });
 
 app.get("/api/rooms", (req, res) => {
-    const rooms = db.query("SELECT * FROM rooms").all();
+    const rooms = db.instance.query("SELECT * FROM rooms").all();
     res.status(200).json(rooms);
 });
 
