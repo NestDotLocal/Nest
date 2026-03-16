@@ -47,8 +47,7 @@ function initializeDatabase() {
             room TEXT NOT NULL,
             path TEXT NOT NULL,
             type TEXT NOT NULL CHECK(type IN ('file', 'folder')),
-            title TEXT,
-            color TEXT,
+            name TEXT,
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL
         );

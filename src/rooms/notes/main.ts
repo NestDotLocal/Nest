@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import frontmatter from "front-matter";
 import db from "../../db/main";
+import { randomUUID } from "node:crypto";
 
 const notesDir = path.resolve("nest/storage/notes");
 
@@ -14,9 +15,20 @@ apiRouter.get("/", (req, res) => {
     res.json({ room: "notes", status: "ok" });
 });
 
-apiRouter.get("/notes", (req, res) => {
+apiRouter.get("/entries", (req, res) => {
     const notes = db.instance.query("SELECT * FROM storage").all();
     res.json(notes);
+});
+
+apiRouter.post("/entries", (req, res) => {
+    const path = req.body.path;
+    const type = req.body.type;
+    const title = req.body.title;
+    const color = req.body.color;
+    const created_at = new Date().toISOString();
+    const updated_at = new Date().toISOString();
+
+    db.instance.run(``);
 });
 
 export { apiRouter as api };
@@ -58,15 +70,14 @@ export const setup = async () => {
     for (const entry of entries) {
         const filePath = path.join(notesDir, entry.name);
         db.instance.run(`
-            INSERT OR IGNORE INTO storage (uuid, room, path, type, title, color, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT OR IGNORE INTO storage (uuid, room, path, type, name, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `, [
-            entry.name,
+            randomUUID(),
             "notes",
             filePath,
             entry.isDirectory() ? "folder" : "file",
             entry.name,
-            "#000000",
             new Date().toISOString(),
             new Date().toISOString(),
         ]);
