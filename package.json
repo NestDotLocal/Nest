@@ -21,6 +21,7 @@
     "scripts": {
         "dev": "bun --watch src/main.ts",
         "build": "vite build",
+        "start": "NODE_ENV=production bun src/main.ts",
         "preview": "vite preview"
     }
 }
