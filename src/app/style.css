@@ -1,9 +1,9 @@
-@import url("/styles/design-system.css");
-@import url("/styles/typography.css");
-@import url("/styles/base.css");
-@import url("/styles/components/inputs.css");
-@import url("/styles/components/buttons.css");
-@import url("/styles/components/controls.css");
+@import url("./styles/design-system.css");
+@import url("./styles/typography.css");
+@import url("./styles/base.css");
+@import url("./styles/components/inputs.css");
+@import url("./styles/components/buttons.css");
+@import url("./styles/components/controls.css");
 
 :root {
     --num-columns: 8;

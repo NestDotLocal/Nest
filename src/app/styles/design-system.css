@@ -3,7 +3,7 @@
     font-family: "Albert Sans";
     font-style: normal;
     font-weight: 300;
-    src: url("/fonts/albert-sans-v4-latin-300.woff2") format("woff2");
+    src: url("/app/fonts/albert-sans-v4-latin-300.woff2") format("woff2");
 }
 
 @font-face {
@@ -11,7 +11,7 @@
     font-family: "Albert Sans";
     font-style: normal;
     font-weight: 400;
-    src: url("/fonts/albert-sans-v4-latin-regular.woff2") format("woff2");
+    src: url("/app/fonts/albert-sans-v4-latin-regular.woff2") format("woff2");
 }
 
 @font-face {
@@ -19,7 +19,7 @@
     font-family: "Albert Sans";
     font-style: normal;
     font-weight: 500;
-    src: url("/fonts/albert-sans-v4-latin-500.woff2") format("woff2");
+    src: url("/app/fonts/albert-sans-v4-latin-500.woff2") format("woff2");
 }
 
 @font-face {
@@ -27,7 +27,7 @@
     font-family: "Albert Sans";
     font-style: normal;
     font-weight: 600;
-    src: url("/fonts/albert-sans-v4-latin-600.woff2") format("woff2");
+    src: url("/app/fonts/albert-sans-v4-latin-600.woff2") format("woff2");
 }
 
 @font-face {
@@ -38,7 +38,7 @@
         local("Segoe UI Emoji"),
         local("Segoe UI Symbol"),
         local("Noto Color Emoji"),
-        url("/fonts/noto-color-emoji-v39-emoji-regular.woff2") format("woff2");
+        url("/app/fonts/noto-color-emoji-v39-emoji-regular.woff2") format("woff2");
     unicode-range:
         U+1F600- U+1F64F,
         U+1F300- U+1F5FF,

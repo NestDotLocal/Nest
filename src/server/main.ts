@@ -11,6 +11,7 @@ app.use(express.json());
 
 // Serve global static assets + home page
 app.use("/", express.static(path.join(__dirname, "..", "app")));
+app.use("/app", express.static(path.join(__dirname, "..", "app")));
 
 // API routes
 app.post("/api/nest/reset", (req, res) => {
