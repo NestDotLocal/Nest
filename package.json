@@ -21,7 +21,7 @@
         "front-matter": "^4.0.2"
     },
     "scripts": {
-        "dev": "nodemon --exec bun src/main.ts --ext ts",
+        "dev": "nodemon",
         "build": "vite build",
         "start": "NODE_ENV=production bun src/main.ts",
         "preview": "vite preview"

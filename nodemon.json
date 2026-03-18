@@ -1,0 +1,8 @@
+{
+    "exec": "bun src/main.ts",
+    "ext": "ts",
+    "ignore": [
+        "src/rooms/*/frontend/**",
+        "src/app/**"
+    ]
+}
