@@ -39,7 +39,7 @@
     background: var(--color-accent-hover);
 }
 .btn.primary:active {
-    background: hsl(27, 100%, 64%);
+    background: var(--color-accent-800);
 }
 
 .btn.secondary {
@@ -50,5 +50,5 @@
     background: var(--color-border);
 }
 .btn.secondary:active {
-    background: hsl(40, 10%, 82%);
+    background: var(--color-border);
 }

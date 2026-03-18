@@ -18,7 +18,7 @@
 }
 .input:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px hsla(27, 100%, 84%, 0.25);
+    box-shadow: 0 0 0 3px oklch(72% 0.130 50 / 0.25);
 }
 .input:disabled {
     opacity: 0.4;
