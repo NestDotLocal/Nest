@@ -2,7 +2,7 @@ import { Router } from "express";
 import { type ViteDevServer } from "vite";
 import fs from "node:fs";
 import path from "node:path";
-import { scanRoom, listEntries, createEntry } from "../../storage/main";
+import { scanRoom, listEntries, getEntry, createEntry, updateEntry, deleteEntry, readFile } from "../../storage/main";
 
 // API Router
 const apiRouter = Router();
@@ -34,6 +34,52 @@ apiRouter.post("/entries", (req, res) => {
     } catch (err) {
         res.status(500).json({ error: "Failed to create note" });
     }
+});
+
+// Get a single note's content
+apiRouter.get("/entries/:id", (req, res) => {
+    const entry = getEntry("notes", `/${req.params.id}`);
+    if (!entry) {
+        res.status(404).json({ error: "Note not found" });
+        return;
+    }
+    const content = readFile("notes", entry.path);
+    res.json({ ...entry, content });
+});
+
+// Update a note's content
+apiRouter.patch("/entries/:id", (req, res) => {
+    const { content } = req.body;
+    if (content === undefined) {
+        res.status(400).json({ error: "content is required" });
+        return;
+    }
+    const entry = getEntry("notes", `/${req.params.id}`);
+    if (!entry) {
+        res.status(404).json({ error: "Note not found" });
+        return;
+    }
+    const success = updateEntry("notes", entry.path, content);
+    if (!success) {
+        res.status(500).json({ error: "Failed to update note" });
+        return;
+    }
+    res.json({ success: true });
+});
+
+// Delete a note
+apiRouter.delete("/entries/:id", (req, res) => {
+    const entry = getEntry("notes", `/${req.params.id}`);
+    if (!entry) {
+        res.status(404).json({ error: "Note not found" });
+        return;
+    }
+    const success = deleteEntry("notes", entry.path);
+    if (!success) {
+        res.status(500).json({ error: "Failed to delete note" });
+        return;
+    }
+    res.json({ success: true });
 });
 
 export { apiRouter as api };
