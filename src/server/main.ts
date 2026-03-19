@@ -26,7 +26,7 @@ app.get("/api/rooms", (req, res) => {
 
 if (process.env.NODE_ENV === "production") {
     await loadApps(app);
-    app.use("/", express.static(path.join(__dirname, "..", "dist")));
+    app.use("/", express.static(path.resolve("dist")));
 } else {
     const vite = await createViteServer({
         server: { middlewareMode: true },
