@@ -2,9 +2,10 @@ import { Router } from "express";
 import { type ViteDevServer } from "vite";
 import fs from "node:fs";
 import path from "node:path";
-import { scanRoom, listEntries, getEntry, createEntry, updateEntry, deleteEntry, readFile } from "../../storage/main";
+import { scanRoom, watchRoom } from "../../storage/main";
+import { getNotes, getNote, createNote, updateNote, deleteNote, ensureHome } from "./util/notes";
 
-// API Router
+// API Router - handles all /api/notes/* routes
 const apiRouter = Router();
 
 apiRouter.get("/", (req, res) => {
@@ -13,23 +14,19 @@ apiRouter.get("/", (req, res) => {
 
 // List all notes
 apiRouter.get("/entries", (req, res) => {
-    const notes = listEntries("notes");
+    const notes = getNotes();
     res.json(notes);
 });
 
 // Create a new note
 apiRouter.post("/entries", (req, res) => {
-    const { name, content = "" } = req.body;
-
+    const { name, content = "", folder = "/" } = req.body;
     if (!name) {
         res.status(400).json({ error: "name is required" });
         return;
     }
-
-    const entryPath = `/${name}.md`;
-
     try {
-        const entry = createEntry("notes", entryPath, name, "file", content);
+        const entry = createNote(name, content, folder);
         res.status(201).json(entry);
     } catch (err) {
         res.status(500).json({ error: "Failed to create note" });
@@ -38,13 +35,12 @@ apiRouter.post("/entries", (req, res) => {
 
 // Get a single note's content
 apiRouter.get("/entries/:id", (req, res) => {
-    const entry = getEntry("notes", `/${req.params.id}`);
-    if (!entry) {
+    const note = getNote(req.params.id);
+    if (!note) {
         res.status(404).json({ error: "Note not found" });
         return;
     }
-    const content = readFile("notes", entry.path);
-    res.json({ ...entry, content });
+    res.json(note);
 });
 
 // Update a note's content
@@ -54,14 +50,9 @@ apiRouter.patch("/entries/:id", (req, res) => {
         res.status(400).json({ error: "content is required" });
         return;
     }
-    const entry = getEntry("notes", `/${req.params.id}`);
-    if (!entry) {
-        res.status(404).json({ error: "Note not found" });
-        return;
-    }
-    const success = updateEntry("notes", entry.path, content);
+    const success = updateNote(req.params.id, content);
     if (!success) {
-        res.status(500).json({ error: "Failed to update note" });
+        res.status(404).json({ error: "Note not found" });
         return;
     }
     res.json({ success: true });
@@ -69,14 +60,9 @@ apiRouter.patch("/entries/:id", (req, res) => {
 
 // Delete a note
 apiRouter.delete("/entries/:id", (req, res) => {
-    const entry = getEntry("notes", `/${req.params.id}`);
-    if (!entry) {
-        res.status(404).json({ error: "Note not found" });
-        return;
-    }
-    const success = deleteEntry("notes", entry.path);
+    const success = deleteNote(req.params.id);
     if (!success) {
-        res.status(500).json({ error: "Failed to delete note" });
+        res.status(404).json({ error: "Note not found" });
         return;
     }
     res.json({ success: true });
@@ -88,19 +74,28 @@ export { apiRouter as api };
 export const createFrontend = (vite?: ViteDevServer) => {
     const router = Router();
 
-    router.get("/", async (req, res, next) => {
+    const serveHtml = async (url: string, res: any, next: any) => {
         try {
-            let html = fs.readFileSync(
-                path.resolve(__dirname, "frontend/index.html"),
-                "utf-8",
-            );
+            const htmlPath = vite
+                ? path.resolve(__dirname, "frontend/index.html")
+                : path.resolve(__dirname, "..", "..", "..", "dist", "rooms", "notes", "frontend", "index.html");
+            let html = fs.readFileSync(htmlPath, "utf-8");
             if (vite) {
-                html = await vite.transformIndexHtml(req.originalUrl, html);
+                html = await vite.transformIndexHtml(url, html);
             }
             res.status(200).set({ "Content-Type": "text/html" }).send(html);
         } catch (e) {
             next(e);
         }
+    };
+
+    router.get("/", (req, res, next) => {
+        serveHtml(req.originalUrl, res, next);
+    });
+
+    router.get("/*path", (req, res, next) => {
+        const notePath = decodeURIComponent((req.params as any).path.join('/'));
+        serveHtml(req.originalUrl, res, next);
     });
 
     // Let everything else (assets, scripts) fall through to Vite
@@ -111,4 +106,6 @@ export const createFrontend = (vite?: ViteDevServer) => {
 
 export const setup = async () => {
     scanRoom("notes");
+    watchRoom("notes");
+    ensureHome();
 };
