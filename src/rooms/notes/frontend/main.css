@@ -3,8 +3,17 @@ body {
     flex-direction: row;
     height: 100vh;
     margin: 0;
+    opacity: 0;
+    transition: opacity 150ms ease;
 }
 
+body.ready {
+    opacity: 1;
+}
+
+/* -------------------------
+   Editor
+------------------------- */
 #editor {
     flex: 1;
     display: flex;
@@ -12,7 +21,8 @@ body {
     overflow: hidden;
 }
 
-.milkdown {
+.milkdown,
+.milkdown > div {
     flex: 1;
     height: 100%;
     overflow: auto;
@@ -23,8 +33,238 @@ body {
     outline: none;
 }
 
+/* -------------------------
+   Sidebar
+------------------------- */
 #sidebar {
-    padding: 8px;
     width: 250px;
     background-color: var(--color-surface);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-sm) var(--space-xs);
+    flex-shrink: 0;
+}
+
+.sidebar-title {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-subtle);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-label);
+}
+
+.sidebar-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--color-text-subtle);
+    transition:
+        background var(--transition-speed),
+        color var(--transition-speed);
+}
+
+.sidebar-action:hover {
+    background: var(--color-surface-raised);
+    color: var(--color-text);
+}
+
+.sidebar-tree {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-xs) var(--space-sm) var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* -------------------------
+   Entry (file or folder)
+------------------------- */
+.entry {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 6px var(--space-sm);
+    padding-left: 8px; /* overridden inline for depth */
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-muted);
+    text-align: left;
+    width: 100%;
+    transition:
+        background var(--transition-speed),
+        color var(--transition-speed);
+}
+
+.entry:hover {
+    background: var(--color-surface-raised);
+    color: var(--color-text);
+}
+
+.entry.active {
+    background: var(--color-accent-100);
+    color: var(--color-text);
+}
+
+.entry.selected {
+    background: var(--color-surface-raised);
+    color: var(--color-text);
+}
+
+.entry.active.selected {
+    background: var(--color-accent-200);
+}
+
+/* Files */
+.entry.file {
+    font-weight: var(--font-weight-regular);
+}
+
+/* Folders */
+.entry.folder {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+}
+
+/* -------------------------
+   Icons
+------------------------- */
+.entry .icon {
+    flex-shrink: 0;
+    color: var(--color-text-subtle);
+}
+
+.entry:hover .icon,
+.entry.active .icon {
+    color: var(--color-text-muted);
+}
+
+.entry.folder .icon {
+    color: var(--color-text-muted);
+}
+
+/* -------------------------
+   Chevron (folder expand)
+------------------------- */
+.entry .chevron {
+    flex-shrink: 0;
+    color: var(--color-text-subtle);
+    transition: transform var(--transition-speed);
+    margin-right: -4px; /* tighten gap with folder icon */
+}
+
+.entry.open .chevron {
+    transform: rotate(90deg);
+}
+
+/* -------------------------
+   Name
+------------------------- */
+.entry .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+/* -------------------------
+   Folder children
+------------------------- */
+.folder-children {
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+}
+
+.folder-children.open {
+    display: flex;
+}
+
+/* -------------------------
+   New note inline input
+------------------------- */
+.new-note-input-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 4px var(--space-sm);
+    color: var(--color-text-subtle);
+}
+
+.new-note-input {
+    flex: 1;
+    background: var(--color-bg);
+    border: 1px solid var(--color-accent);
+    border-radius: 6px;
+    padding: 3px 6px;
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    outline: none;
+    min-width: 0;
+}
+
+.new-note-input::placeholder {
+    color: var(--color-text-subtle);
+}
+
+/* -------------------------
+   Skeleton
+------------------------- */
+.skeleton-entry {
+    display: flex;
+    align-items: center;
+    padding: 6px var(--space-sm);
+}
+
+.skeleton-bar {
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(
+        90deg,
+        var(--color-surface-raised) 25%,
+        var(--color-border) 50%,
+        var(--color-surface-raised) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+@keyframes skeleton-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Indent guide line */
+.folder-children.open::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 4px;
+    bottom: 4px;
+    width: 1px;
+    background: var(--color-border);
+    border-radius: 1px;
 }
