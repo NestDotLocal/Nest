@@ -49,7 +49,8 @@ function initializeDatabase() {
             type TEXT NOT NULL CHECK(type IN ('file', 'folder')),
             name TEXT,
             created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL
+            updated_at TEXT NOT NULL,
+            UNIQUE(room, path)
         );
     `);
 

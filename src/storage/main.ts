@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import chokidar from "chokidar";
 import db from "../db/main";
 
 export interface StorageEntry {
@@ -12,6 +13,56 @@ export interface StorageEntry {
     created_at: string;
     updated_at: string;
 }
+
+// Convert absolute path to relative storage path
+const toRelativePath = (roomDir: string, absPath: string): string =>
+    absPath.replace(roomDir, "").replace(/\\/g, "/");
+
+// Insert a single entry into the index if it doesn't exist
+const indexEntry = (room: string, roomDir: string, absPath: string, isDir: boolean) => {
+    const filePath = toRelativePath(roomDir, absPath);
+    const name = path.basename(absPath);
+
+    if (name.startsWith(".")) return; // skip hidden
+
+    const existing = db.instance.query(
+        `SELECT uuid FROM storage WHERE room = ? AND path = ?`
+    ).get(room, filePath);
+
+    if (!existing) {
+        db.instance.run(`
+            INSERT INTO storage (uuid, room, path, type, name, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [
+            randomUUID(),
+            room,
+            filePath,
+            isDir ? "folder" : "file",
+            name,
+            new Date().toISOString(),
+            new Date().toISOString(),
+        ]);
+        console.log(`[Storage] Indexed: ${filePath}`);
+    }
+};
+
+// Remove a single entry from the index
+const removeEntry = (room: string, roomDir: string, absPath: string, isDir: boolean) => {
+    const filePath = toRelativePath(roomDir, absPath);
+
+    if (isDir) {
+        db.instance.run(
+            `DELETE FROM storage WHERE room = ? AND (path = ? OR path LIKE ?)`,
+            [room, filePath, `${filePath}/%`]
+        );
+    } else {
+        db.instance.run(
+            `DELETE FROM storage WHERE room = ? AND path = ?`,
+            [room, filePath]
+        );
+    }
+    console.log(`[Storage] Removed from index: ${filePath}`);
+};
 
 // Scan a room's storage directory and populate the SQLite index
 export const scanRoom = (room: string) => {
@@ -26,28 +77,38 @@ export const scanRoom = (room: string) => {
     const entries = fs.readdirSync(roomDir, { withFileTypes: true, recursive: true });
 
     for (const entry of entries) {
-        // Skip hidden files and symlinks
         if (entry.name.startsWith(".") || entry.isSymbolicLink()) continue;
-
-        const filePath = path.join(entry.parentPath, entry.name)
-            .replace(roomDir, "")
-            .replace(/\\/g, "/");
-
-        db.instance.run(`
-            INSERT OR IGNORE INTO storage (uuid, room, path, type, name, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [
-            randomUUID(),
-            room,
-            filePath,
-            entry.isDirectory() ? "folder" : "file",
-            entry.name,
-            new Date().toISOString(),
-            new Date().toISOString(),
-        ]);
+        const absPath = path.join(entry.parentPath, entry.name);
+        indexEntry(room, roomDir, absPath, entry.isDirectory());
     }
 
     console.log(`[Storage] Indexed storage for: ${room}`);
+};
+
+// Watch a room's storage directory for external changes
+export const watchRoom = (room: string) => {
+    const roomDir = path.resolve(`nest/storage/${room}`);
+
+    if (!fs.existsSync(roomDir)) return;
+
+    const watcher = chokidar.watch(roomDir, {
+        ignoreInitial: true, // don't re-index on startup, scanRoom handles that
+        ignored: /(^|[\/\\])\../, // skip hidden files
+        persistent: true,
+        awaitWriteFinish: {
+            stabilityThreshold: 300,
+            pollInterval: 100,
+        },
+    });
+
+    watcher
+        .on('add', (absPath) => indexEntry(room, roomDir, absPath, false))
+        .on('addDir', (absPath) => indexEntry(room, roomDir, absPath, true))
+        .on('unlink', (absPath) => removeEntry(room, roomDir, absPath, false))
+        .on('unlinkDir', (absPath) => removeEntry(room, roomDir, absPath, true))
+        .on('error', (err) => console.error(`[Storage] Watcher error:`, err));
+
+    console.log(`[Storage] Watching: nest/storage/${room}`);
 };
 
 // List all entries for a room
@@ -62,6 +123,13 @@ export const getEntry = (room: string, entryPath: string): StorageEntry | null =
     return db.instance.query(
         `SELECT * FROM storage WHERE room = ? AND path = ?`
     ).get(room, entryPath) as StorageEntry | null;
+};
+
+// Get a single entry by UUID
+export const getEntryByUuid = (uuid: string): StorageEntry | null => {
+    return db.instance.query(
+        `SELECT * FROM storage WHERE uuid = ?`
+    ).get(uuid) as StorageEntry | null;
 };
 
 // Create a new file entry on disk and in the index
@@ -124,7 +192,6 @@ export const deleteEntry = (room: string, entryPath: string): boolean => {
     const stat = fs.statSync(fullPath);
     if (stat.isDirectory()) {
         fs.rmSync(fullPath, { recursive: true });
-        // Remove folder and all children from index
         db.instance.run(
             `DELETE FROM storage WHERE room = ? AND (path = ? OR path LIKE ?)`,
             [room, entryPath, `${entryPath}/%`]
