@@ -231,6 +231,44 @@ body.ready {
 }
 
 /* -------------------------
+   Save indicator
+------------------------- */
+.save-indicator {
+    position: fixed;
+    bottom: var(--space-lg);
+    right: var(--space-lg);
+    padding: var(--space-xs) var(--space-md);
+    border-radius: 8px;
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+        opacity var(--transition-speed),
+        transform var(--transition-speed);
+    pointer-events: none;
+    z-index: 100;
+}
+
+.save-indicator.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.save-indicator.success {
+    background: var(--color-success-subtle);
+    color: var(--color-success);
+    border: 1px solid var(--color-success-border);
+}
+
+.save-indicator.error {
+    background: var(--color-danger-subtle);
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger-border);
+}
+
+/* -------------------------
    Skeleton
 ------------------------- */
 .skeleton-entry {
