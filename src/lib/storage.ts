@@ -14,6 +14,24 @@ export interface StorageEntry {
     updated_at: string;
 }
 
+// -------------------------
+// Scan lock
+// -------------------------
+const scanLocks = new Map<string, boolean>();
+
+const acquireLock = (room: string): boolean => {
+    if (scanLocks.get(room)) return false;
+    scanLocks.set(room, true);
+    return true;
+};
+
+const releaseLock = (room: string): void => {
+    scanLocks.set(room, false);
+};
+
+// -------------------------
+// Internal helpers
+// -------------------------
 const toRelativePath = (roomDir: string, absPath: string): string =>
     absPath.replace(roomDir, "").replace(/\\/g, "/");
 
@@ -22,53 +40,81 @@ const indexEntry = (room: string, roomDir: string, absPath: string, isDir: boole
     const name = path.basename(absPath);
     if (name.startsWith(".")) return;
 
-    const existing = db.instance.query(
-        `SELECT uuid FROM storage WHERE room = ? AND path = ?`
-    ).get(room, filePath);
+    try {
+        const existing = db.instance.query(
+            `SELECT uuid FROM storage WHERE room = ? AND path = ?`
+        ).get(room, filePath);
 
-    if (!existing) {
-        db.instance.run(`
-            INSERT INTO storage (uuid, room, path, type, name, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [
-            randomUUID(), room, filePath,
-            isDir ? "folder" : "file",
-            name,
-            new Date().toISOString(),
-            new Date().toISOString(),
-        ]);
-        console.log(`[Storage] Indexed: ${filePath}`);
+        if (!existing) {
+            db.instance.run(`
+                INSERT INTO storage (uuid, room, path, type, name, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `, [
+                randomUUID(), room, filePath,
+                isDir ? "folder" : "file",
+                name,
+                new Date().toISOString(),
+                new Date().toISOString(),
+            ]);
+            console.log(`[Storage] Indexed: ${filePath}`);
+        }
+    } catch (err) {
+        console.warn(`[Storage] Failed to index ${filePath}:`, err);
     }
 };
 
 const removeEntry = (room: string, roomDir: string, absPath: string, isDir: boolean): void => {
     const filePath = toRelativePath(roomDir, absPath);
-    if (isDir) {
-        db.instance.run(
-            `DELETE FROM storage WHERE room = ? AND (path = ? OR path LIKE ?)`,
-            [room, filePath, `${filePath}/%`]
-        );
-    } else {
-        db.instance.run(
-            `DELETE FROM storage WHERE room = ? AND path = ?`,
-            [room, filePath]
-        );
+    try {
+        if (isDir) {
+            db.instance.run(
+                `DELETE FROM storage WHERE room = ? AND (path = ? OR path LIKE ?)`,
+                [room, filePath, `${filePath}/%`]
+            );
+        } else {
+            db.instance.run(
+                `DELETE FROM storage WHERE room = ? AND path = ?`,
+                [room, filePath]
+            );
+        }
+        console.log(`[Storage] Removed from index: ${filePath}`);
+    } catch (err) {
+        console.warn(`[Storage] Failed to remove ${filePath} from index:`, err);
     }
-    console.log(`[Storage] Removed from index: ${filePath}`);
 };
 
+// -------------------------
+// Public: scan + reconcile
+// -------------------------
 export const scanRoom = (room: string): void => {
     const roomDir = path.resolve(`nest/storage/${room}`);
     if (!fs.existsSync(roomDir)) {
-        fs.mkdirSync(roomDir, { recursive: true });
-        console.log(`[Storage] Created storage directory for: ${room}`);
+        try {
+            fs.mkdirSync(roomDir, { recursive: true });
+            console.log(`[Storage] Created storage directory for: ${room}`);
+        } catch (err) {
+            console.error(`[Storage] Failed to create storage directory for ${room}:`, err);
+        }
         return;
     }
-    const entries = fs.readdirSync(roomDir, { withFileTypes: true, recursive: true });
+
+    let entries;
+    try {
+        entries = fs.readdirSync(roomDir, { withFileTypes: true, recursive: true });
+    } catch (err) {
+        console.error(`[Storage] Failed to read storage directory for ${room}:`, err);
+        return;
+    }
+
     for (const entry of entries) {
         if (entry.name.startsWith(".") || entry.isSymbolicLink()) continue;
-        indexEntry(room, roomDir, path.join(entry.parentPath, entry.name), entry.isDirectory());
+        try {
+            indexEntry(room, roomDir, path.join(entry.parentPath, entry.name), entry.isDirectory());
+        } catch (err) {
+            console.warn(`[Storage] Skipping unreadable entry ${entry.name}:`, err);
+        }
     }
+
     console.log(`[Storage] Indexed storage for: ${room}`);
 };
 
@@ -77,17 +123,47 @@ export const reconcileRoom = (room: string): void => {
     const entries = listEntries(room);
     for (const entry of entries) {
         const fullPath = path.join(roomDir, entry.path);
-        if (!fs.existsSync(fullPath)) {
-            db.instance.run(
-                `DELETE FROM storage WHERE room = ? AND (path = ? OR path LIKE ?)`,
-                [room, entry.path, `${entry.path}/%`]
-            );
-            console.log(`[Storage] Reconciled (removed ghost): ${entry.path}`);
+        try {
+            if (!fs.existsSync(fullPath)) {
+                db.instance.run(
+                    `DELETE FROM storage WHERE room = ? AND (path = ? OR path LIKE ?)`,
+                    [room, entry.path, `${entry.path}/%`]
+                );
+                console.log(`[Storage] Reconciled (removed ghost): ${entry.path}`);
+            }
+        } catch (err) {
+            console.warn(`[Storage] Failed to reconcile ${entry.path}:`, err);
         }
     }
     console.log(`[Storage] Reconciled storage for: ${room}`);
 };
 
+// -------------------------
+// Public: periodic scan
+// -------------------------
+const SCAN_INTERVAL_MS = 15 * 60 * 1000;
+
+export const startPeriodicScan = (room: string): void => {
+    setInterval(() => {
+        if (!acquireLock(room)) {
+            console.log(`[Storage] Scan already in progress for ${room}, skipping.`);
+            return;
+        }
+        try {
+            console.log(`[Storage] Running periodic scan for: ${room}`);
+            scanRoom(room);
+            reconcileRoom(room);
+        } finally {
+            releaseLock(room);
+        }
+    }, SCAN_INTERVAL_MS);
+
+    console.log(`[Storage] Periodic scan scheduled for: ${room} (every 15 min)`);
+};
+
+// -------------------------
+// Public: watch
+// -------------------------
 export const watchRoom = (room: string): void => {
     const roomDir = path.resolve(`nest/storage/${room}`);
     if (!fs.existsSync(roomDir)) return;
@@ -109,6 +185,9 @@ export const watchRoom = (room: string): void => {
     console.log(`[Storage] Watching: nest/storage/${room}`);
 };
 
+// -------------------------
+// Public: CRUD
+// -------------------------
 export const listEntries = (room: string): StorageEntry[] =>
     db.instance.query(
         `SELECT * FROM storage WHERE room = ? ORDER BY type DESC, name ASC`
@@ -189,5 +268,10 @@ export const readFile = (room: string, entryPath: string): string | null => {
     const roomDir = path.resolve(`nest/storage/${room}`);
     const fullPath = path.join(roomDir, entryPath);
     if (!fs.existsSync(fullPath)) return null;
-    return fs.readFileSync(fullPath, "utf-8");
+    try {
+        return fs.readFileSync(fullPath, "utf-8");
+    } catch (err) {
+        console.warn(`[Storage] Failed to read file ${entryPath}:`, err);
+        return null;
+    }
 };

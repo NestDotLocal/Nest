@@ -1,4 +1,4 @@
-import { scanRoom, reconcileRoom, watchRoom } from "@nest/storage";
+import { scanRoom, reconcileRoom, watchRoom, startPeriodicScan } from "@nest/storage";
 
 interface RoomSetupOptions {
     room: string;
@@ -9,6 +9,7 @@ export const setupRoom = ({ room, ensure }: RoomSetupOptions): void => {
     scanRoom(room);
     reconcileRoom(room);
     watchRoom(room);
+    startPeriodicScan(room);
     ensure?.();
     console.log(`[Room] Setup complete: ${room}`);
 };
