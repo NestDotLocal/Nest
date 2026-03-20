@@ -2,10 +2,11 @@ import type { Widget } from "../types";
 import manifest from "./widget.json";
 
 const render = async (container: HTMLElement): Promise<void> => {
-    container.innerHTML = `<div class="widget-notes"><div class="widget-notes__list"></div></div>`;
+    container.innerHTML = `<div class="widget-notes"><div class="widget-notes__list widget-notes__list--loading"><div class="widget-notes__skeleton"></div><div class="widget-notes__skeleton"></div><div class="widget-notes__skeleton"></div></div></div>`;
     const list = container.querySelector<HTMLElement>('.widget-notes__list')!;
 
     const load = async () => {
+        list.classList.remove('widget-notes__list--loading');
         try {
             const res = await fetch('/api/notes/entries');
             const entries: any[] = await res.json();

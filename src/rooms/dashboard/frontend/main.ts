@@ -27,6 +27,22 @@ const grid = GridStack.init({
 // -------------------------
 const mountedWidgets = new Map<string, HTMLElement>();
 
+const renderEmptyState = (): void => {
+    const gridEl = document.getElementById('grid')!;
+    if (mountedWidgets.size === 0 && !gridEl.querySelector('.empty-state')) {
+        const el = document.createElement('div');
+        el.className = 'empty-state';
+        el.innerHTML = `
+            <div class="empty-state__icon">⊞</div>
+            <div class="empty-state__title">No widgets yet</div>
+            <div class="empty-state__sub">Click <strong>+ Add widget</strong> to get started</div>
+        `;
+        gridEl.appendChild(el);
+    } else if (mountedWidgets.size > 0) {
+        gridEl.querySelector('.empty-state')?.remove();
+    }
+};
+
 const mountWidget = (layout: WidgetLayout): void => {
     const widget = getWidget(layout.id);
     if (!widget) {
@@ -34,7 +50,9 @@ const mountWidget = (layout: WidgetLayout): void => {
         return;
     }
 
-    // Build gridstack item HTML
+    // Remove empty state if present
+    document.querySelector('.empty-state')?.remove();
+
     const el = grid.addWidget({
         id: layout.id,
         x: layout.x,
@@ -45,7 +63,6 @@ const mountWidget = (layout: WidgetLayout): void => {
         minH: widget.manifest.minH,
     }) as HTMLElement;
 
-    // Manually populate the grid-stack-item-content div
     const contentEl = el.querySelector<HTMLElement>('.grid-stack-item-content')!;
     contentEl.innerHTML = `
         <div class="widget-card">
@@ -66,16 +83,24 @@ const mountWidget = (layout: WidgetLayout): void => {
 const unmountWidget = (id: string): void => {
     const body = mountedWidgets.get(id);
     if (!body) return;
-    // Call destroy if widget has cleanup
     getWidget(id)?.destroy?.(body);
     mountedWidgets.delete(id);
+    renderEmptyState();
 };
 
 // -------------------------
 // Layout persistence
 // -------------------------
 const serializeLayout = (): WidgetLayout[] => {
-    return grid.save(false) as any[];
+    // Read directly from DOM to guarantee id is preserved
+    const items = document.querySelectorAll<HTMLElement>('.grid-stack-item');
+    return Array.from(items).map(el => ({
+        id: el.getAttribute('gs-id') ?? '',
+        x: parseInt(el.getAttribute('gs-x') ?? '0'),
+        y: parseInt(el.getAttribute('gs-y') ?? '0'),
+        w: parseInt(el.getAttribute('gs-w') ?? '1'),
+        h: parseInt(el.getAttribute('gs-h') ?? '1'),
+    })).filter(item => item.id);
 };
 
 let saveTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -160,7 +185,6 @@ addBtn.addEventListener('click', () => {
 
 document.getElementById('widget-panel-close')!.addEventListener('click', closePanel);
 
-// Close panel when clicking outside
 document.addEventListener('click', (e) => {
     if (panelOpen && !panel.contains(e.target as Node) && e.target !== addBtn) {
         closePanel();
@@ -184,22 +208,22 @@ const loadLayout = async (): Promise<WidgetLayout[]> => {
 const cached = layoutCache.get();
 
 if (cached) {
-    // Paint immediately from cache
     cached.forEach(mountWidget);
+    renderEmptyState();
     document.body.classList.add('ready');
-    // Then refresh from server silently
     loadLayout().then(fresh => {
-        // Only re-render if layout actually changed
-        const cachedStr = JSON.stringify(cached.map(l => l.id).sort());
-        const freshStr = JSON.stringify(fresh.map((l: WidgetLayout) => l.id).sort());
-        if (cachedStr !== freshStr) {
+        const cachedIds = JSON.stringify(cached.map(l => l.id).sort());
+        const freshIds = JSON.stringify(fresh.map((l: WidgetLayout) => l.id).sort());
+        if (cachedIds !== freshIds) {
             grid.removeAll();
             mountedWidgets.clear();
             fresh.forEach(mountWidget);
+            renderEmptyState();
         }
     });
 } else {
     document.body.classList.add('ready');
     const layout = await loadLayout();
     layout.forEach(mountWidget);
+    renderEmptyState();
 }

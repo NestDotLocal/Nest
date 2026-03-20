@@ -87,6 +87,49 @@ body.ready {
     padding: var(--space-lg);
 }
 
+/* Override gridstack defaults */
+.grid-stack {
+    background: transparent;
+}
+
+.grid-stack-placeholder > .placeholder-content {
+    background: var(--color-accent-100);
+    border: 2px dashed var(--color-accent-300);
+    border-radius: 14px;
+}
+
+/* -------------------------
+   Empty state
+------------------------- */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    gap: var(--space-sm);
+    text-align: center;
+    pointer-events: none;
+}
+
+.empty-state__icon {
+    font-size: 40px;
+    color: var(--color-border-strong);
+    line-height: 1;
+    margin-bottom: var(--space-xs);
+}
+
+.empty-state__title {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-muted);
+}
+
+.empty-state__sub {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-subtle);
+}
+
 /* -------------------------
    Widget card
 ------------------------- */
@@ -217,6 +260,25 @@ body.ready {
     color: var(--color-text-subtle);
     padding: var(--space-md) 0;
     text-align: center;
+}
+
+.widget-notes__skeleton {
+    height: 40px;
+    border-radius: 8px;
+    background: linear-gradient(
+        90deg,
+        var(--color-surface) 25%,
+        var(--color-surface-raised) 50%,
+        var(--color-surface) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease infinite;
+    margin-bottom: var(--space-xs);
+}
+
+@keyframes skeleton-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 /* -------------------------

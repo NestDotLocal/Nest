@@ -9,8 +9,10 @@ const port = Number(process.env.PORT) || 4567;
 
 app.use(express.json());
 
-// Serve global static assets + home page
-app.use("/", express.static(path.join(__dirname, "..", "app")));
+// Redirect root to dashboard
+app.get("/", (_req, res) => res.redirect("/dashboard"));
+
+// Serve global static assets
 app.use("/app", express.static(path.join(__dirname, "..", "app")));
 
 // API routes
