@@ -1,4 +1,4 @@
-import GridStack from "gridstack";
+import { GridStack } from "gridstack";
 import "gridstack/dist/gridstack.min.css";
 import { createCache } from "@nest/cache";
 import { showToast } from "@nest/toast";
@@ -18,7 +18,7 @@ const grid = GridStack.init({
     cellHeight: 80,
     animate: true,
     margin: 8,
-    handle: '.widget-handle',
+    handleClass: 'widget-handle',
     resizable: { handles: 'e, se, s, sw, w' },
 });
 
@@ -35,34 +35,31 @@ const mountWidget = (layout: WidgetLayout): void => {
     }
 
     // Build gridstack item HTML
-    const el = document.createElement('div');
-    el.className = 'grid-stack-item';
-    el.setAttribute('gs-id', layout.id);
-    el.setAttribute('gs-x', String(layout.x));
-    el.setAttribute('gs-y', String(layout.y));
-    el.setAttribute('gs-w', String(layout.w));
-    el.setAttribute('gs-h', String(layout.h));
-    el.setAttribute('gs-min-w', String(widget.manifest.minW));
-    el.setAttribute('gs-min-h', String(widget.manifest.minH));
+    const el = grid.addWidget({
+        id: layout.id,
+        x: layout.x,
+        y: layout.y,
+        w: layout.w,
+        h: layout.h,
+        minW: widget.manifest.minW,
+        minH: widget.manifest.minH,
+    }) as HTMLElement;
 
-    const inner = document.createElement('div');
-    inner.className = 'grid-stack-item-content widget-card';
-    inner.innerHTML = `
-        <div class="widget-card__header">
-            <span class="widget-card__title">${widget.manifest.name}</span>
-            <span class="widget-handle">⠿</span>
+    // Manually populate the grid-stack-item-content div
+    const contentEl = el.querySelector<HTMLElement>('.grid-stack-item-content')!;
+    contentEl.innerHTML = `
+        <div class="widget-card">
+            <div class="widget-card__header">
+                <span class="widget-card__title">${widget.manifest.name}</span>
+                <span class="widget-handle">⠿</span>
+            </div>
+            <div class="widget-card__body"></div>
         </div>
-        <div class="widget-card__body"></div>
     `;
-    el.appendChild(inner);
 
-    grid.addWidget(el);
-
-    const body = inner.querySelector<HTMLElement>('.widget-card__body')!;
-    const result = widget.render(body);
-    // Handle async renders (notes widget)
+    const body = contentEl.querySelector<HTMLElement>('.widget-card__body')!;
+    const result = (widget.render as any)(body);
     if (result instanceof Promise) result.catch(console.error);
-
     mountedWidgets.set(layout.id, body);
 };
 
@@ -109,6 +106,15 @@ grid.on('resizestop', scheduleSave);
 // -------------------------
 const panel = document.getElementById('widget-panel')!;
 const panelList = document.getElementById('widget-panel-list')!;
+const addBtn = document.getElementById('add-widget-btn')!;
+let panelOpen = false;
+
+const closePanel = (): void => {
+    panelOpen = false;
+    panel.classList.add('hidden');
+    addBtn.classList.remove('panel-open');
+    addBtn.textContent = '+ Add widget';
+};
 
 const openPanel = (): void => {
     const mounted = new Set(mountedWidgets.keys());
@@ -126,7 +132,6 @@ const openPanel = (): void => {
         btn.addEventListener('click', () => {
             const id = btn.dataset['id']!;
             if (mountedWidgets.has(id)) {
-                // Remove widget
                 const el = document.querySelector(`.grid-stack-item[gs-id="${id}"]`);
                 if (el) {
                     unmountWidget(id);
@@ -134,22 +139,32 @@ const openPanel = (): void => {
                     scheduleSave();
                 }
             } else {
-                // Add widget with defaults
                 const manifest = getManifests().find(m => m.id === id);
                 if (!manifest) return;
                 mountWidget({ id, x: 0, y: 0, w: manifest.defaultW, h: manifest.defaultH });
                 scheduleSave();
             }
-            panel.classList.add('hidden');
+            closePanel();
         });
     });
 
+    panelOpen = true;
     panel.classList.remove('hidden');
+    addBtn.classList.add('panel-open');
+    addBtn.textContent = '✕ Close';
 };
 
-document.getElementById('add-widget-btn')!.addEventListener('click', openPanel);
-document.getElementById('widget-panel-close')!.addEventListener('click', () => {
-    panel.classList.add('hidden');
+addBtn.addEventListener('click', () => {
+    if (panelOpen) closePanel(); else openPanel();
+});
+
+document.getElementById('widget-panel-close')!.addEventListener('click', closePanel);
+
+// Close panel when clicking outside
+document.addEventListener('click', (e) => {
+    if (panelOpen && !panel.contains(e.target as Node) && e.target !== addBtn) {
+        closePanel();
+    }
 });
 
 // -------------------------

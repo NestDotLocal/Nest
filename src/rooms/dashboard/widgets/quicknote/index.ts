@@ -26,8 +26,21 @@ const render = (container: HTMLElement): void => {
         const content = textarea.value.trim();
         if (!content) return;
 
-        const name = `Quick Note ${new Date().toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}`;
+        const baseName = `Quick Note ${new Date().toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
         try {
+            // Fetch existing entries to detect name collisions
+            const entriesRes = await fetch('/api/notes/entries');
+            const entries: any[] = await entriesRes.json();
+            const existingNames = new Set(entries.map((e: any) => e.name.replace(/\.md$/, '')));
+
+            let name = baseName;
+            if (existingNames.has(name)) {
+                let n = 2;
+                while (existingNames.has(`${baseName} #${n}`)) n++;
+                name = `${baseName} #${n}`;
+            }
+
             const res = await fetch('/api/notes/entries', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

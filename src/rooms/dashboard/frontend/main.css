@@ -52,7 +52,7 @@ body.ready {
 }
 
 .topbar-nav__item--active {
-    color: var(--color-text);
+    color: var(--color-accent);
     font-weight: var(--font-weight-medium);
 }
 
@@ -60,17 +60,22 @@ body.ready {
     font-family: var(--font-family);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-    color: var(--color-bg);
-    background: var(--color-text);
+    color: var(--color-text-on-accent);
+    background: var(--color-accent);
     border: none;
     border-radius: 8px;
     padding: 6px var(--space-md);
     cursor: pointer;
-    transition: opacity var(--transition-speed);
+    transition: background var(--transition-speed), opacity var(--transition-speed);
 }
 
 #add-widget-btn:hover {
-    opacity: 0.85;
+    background: var(--color-accent-hover);
+}
+
+#add-widget-btn.panel-open {
+    background: var(--color-surface-raised);
+    color: var(--color-text);
 }
 
 /* -------------------------
@@ -85,7 +90,13 @@ body.ready {
 /* -------------------------
    Widget card
 ------------------------- */
+.grid-stack-item-content {
+    border-radius: 0;
+    background: transparent;
+}
+
 .widget-card {
+    height: 100%;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -296,10 +307,18 @@ body.ready {
     box-shadow: var(--shadow-md);
     z-index: 50;
     overflow: hidden;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transform-origin: top right;
+    transition:
+        opacity 150ms ease,
+        transform 150ms ease;
 }
 
 .widget-panel.hidden {
-    display: none;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+    pointer-events: none;
 }
 
 .widget-panel__header {
@@ -365,6 +384,15 @@ body.ready {
 .widget-panel__item-status {
     font-size: var(--font-size-xs);
     color: var(--color-text-subtle);
+}
+
+.widget-panel__item--active {
+    border-color: var(--color-accent-300);
+    background: var(--color-accent-100);
+}
+
+.widget-panel__item--active .widget-panel__item-name {
+    color: var(--color-text);
 }
 
 .widget-panel__item--active .widget-panel__item-status {

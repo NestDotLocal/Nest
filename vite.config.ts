@@ -37,6 +37,9 @@ const alias = {
 export default defineConfig({
     root: resolve(__dirname, "src"),
     resolve: { alias },
+    server: {
+        hmr: { port: 4568 },
+    },
     build: {
         outDir: resolve(__dirname, "dist"),
         emptyOutDir: true,
