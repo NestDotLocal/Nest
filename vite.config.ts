@@ -24,8 +24,19 @@ const roomEntries = fs.existsSync(roomsDir)
         )
     : {};
 
+const alias = {
+    '@nest/storage': resolve(__dirname, 'src/lib/storage.ts'),
+    '@nest/room':    resolve(__dirname, 'src/lib/room.ts'),
+    '@nest/router':  resolve(__dirname, 'src/lib/router.ts'),
+    '@nest/cache':   resolve(__dirname, 'src/shared/cache.ts'),
+    '@nest/toast':   resolve(__dirname, 'src/shared/toast.ts'),
+    '@nest/keys':    resolve(__dirname, 'src/shared/keys.ts'),
+    '@nest/sidebar': resolve(__dirname, 'src/shared/sidebar.ts'),
+};
+
 export default defineConfig({
     root: resolve(__dirname, "src"),
+    resolve: { alias },
     build: {
         outDir: resolve(__dirname, "dist"),
         emptyOutDir: true,
