@@ -216,3 +216,23 @@ export const readFile = (room: string, entryPath: string): string | null => {
 
     return fs.readFileSync(fullPath, "utf-8");
 };
+
+// Reconcile any missing files into SQLite index
+export const reconcileRoom = (room: string) => {
+    const roomDir = path.resolve(`nest/storage/${room}`);
+    const entries = listEntries(room);
+
+    for (const entry of entries) {
+        const fullPath = path.join(roomDir, entry.path);
+        if (!fs.existsSync(fullPath)) {
+            // reuse existing delete logic
+            db.instance.run(
+                `DELETE FROM storage WHERE room = ? AND (path = ? OR path LIKE ?)`,
+                [room, entry.path, `${entry.path}/%`]
+            );
+            console.log(`[Storage] Reconciled (removed ghost): ${entry.path}`);
+        }
+    }
+
+    console.log(`[Storage] Reconciled storage for: ${room}`);
+};

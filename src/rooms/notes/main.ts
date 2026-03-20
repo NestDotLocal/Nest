@@ -2,7 +2,7 @@ import { Router } from "express";
 import { type ViteDevServer } from "vite";
 import fs from "node:fs";
 import path from "node:path";
-import { scanRoom, watchRoom } from "../../storage/main";
+import { reconcileRoom, scanRoom, watchRoom } from "../../storage/main";
 import { getNotes, getNote, createNote, updateNote, deleteNote, ensureHome } from "./util/notes";
 
 // API Router - handles all /api/notes/* routes
@@ -106,6 +106,7 @@ export const createFrontend = (vite?: ViteDevServer) => {
 
 export const setup = async () => {
     scanRoom("notes");
+    reconcileRoom("notes");
     watchRoom("notes");
     ensureHome();
 };
