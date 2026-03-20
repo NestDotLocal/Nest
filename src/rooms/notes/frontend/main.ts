@@ -1,6 +1,8 @@
 import { Editor, rootCtx } from "@milkdown/kit/core";
 import { commonmark } from "@milkdown/kit/preset/commonmark";
 import "@milkdown/kit/prose/view/style/prosemirror.css";
+import { showToast } from "@nest/toast";
+import { registerShortcut } from "@nest/keys";
 import { requestNotes, getCachedEntries, setCachedEntries } from "./api";
 import { loadSidebar, renderSkeleton } from "./sidebar";
 import { loadCurrentNote, saveCurrentNote } from "./editor";
@@ -15,37 +17,13 @@ const editor = await Editor.make()
 const sidebar = document.getElementById("sidebar")!;
 
 // -------------------------
-// Save indicator
-// -------------------------
-let saveIndicatorTimeout: ReturnType<typeof setTimeout> | null = null;
-
-const showSaveIndicator = (success: boolean): void => {
-    let indicator = document.getElementById('save-indicator');
-    if (!indicator) {
-        indicator = document.createElement('div');
-        indicator.id = 'save-indicator';
-        document.body.appendChild(indicator);
-    }
-    indicator.textContent = success ? 'Saved' : 'Save failed';
-    indicator.className = `save-indicator ${success ? 'success' : 'error'} visible`;
-
-    if (saveIndicatorTimeout) clearTimeout(saveIndicatorTimeout);
-    saveIndicatorTimeout = setTimeout(() => {
-        indicator!.classList.remove('visible');
-    }, 2000);
-};
-
-// -------------------------
 // Keybindings
 // -------------------------
 let currentEntries: any[] = [];
 
-document.addEventListener('keydown', async (e) => {
-    if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        const ok = await saveCurrentNote(editor, currentEntries);
-        showSaveIndicator(ok);
-    }
+registerShortcut('s', async () => {
+    const ok = await saveCurrentNote(editor, currentEntries);
+    showToast(ok ? 'Saved' : 'Save failed', ok ? 'success' : 'error');
 });
 
 // -------------------------

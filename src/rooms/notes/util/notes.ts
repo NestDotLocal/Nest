@@ -1,16 +1,12 @@
-import { listEntries, getEntry, getEntryByUuid, createEntry, updateEntry, deleteEntry, readFile } from "../../../storage/main";
-import type { StorageEntry } from "../../../storage/main";
+import { listEntries, getEntry, getEntryByUuid, createEntry, updateEntry, deleteEntry, readFile } from "@nest/storage";
+import type { StorageEntry } from "@nest/storage";
 
-// Returns all notes for the notes room from the SQLite index
-export const getNotes = (): StorageEntry[] => {
-    return listEntries("notes");
-};
+export const getNotes = (): StorageEntry[] => listEntries("notes");
 
-export const getNote = (uuid: string): (StorageEntry & { content: string | null; }) | null => {
+export const getNote = (uuid: string): (StorageEntry & { content: string | null }) | null => {
     const entry = getEntryByUuid(uuid);
     if (!entry) return null;
-    const content = readFile("notes", entry.path);
-    return { ...entry, content };
+    return { ...entry, content: readFile("notes", entry.path) };
 };
 
 const HOME_CONTENT = `# Home\n\nWelcome to Nest. This is your home note — edit it however you like.\n`;
@@ -23,8 +19,7 @@ export const ensureHome = (): StorageEntry => {
 
 export const createNote = (name: string, content: string = "", folder: string = "/"): StorageEntry => {
     const dir = folder.endsWith('/') ? folder : `${folder}/`;
-    const entryPath = `${dir}${name}.md`;
-    return createEntry("notes", entryPath, name, "file", content);
+    return createEntry("notes", `${dir}${name}.md`, name, "file", content);
 };
 
 export const updateNote = (uuid: string, content: string): boolean => {
