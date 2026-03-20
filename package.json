@@ -20,6 +20,7 @@
         "chokidar": "^5.0.0",
         "express": "^5.2.1",
         "front-matter": "^4.0.2",
+        "gridstack": "^12.4.2",
         "lucide": "^0.577.0"
     },
     "scripts": {
