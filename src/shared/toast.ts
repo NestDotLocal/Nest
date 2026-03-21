@@ -1,6 +1,6 @@
 let toastTimeout: ReturnType<typeof setTimeout> | null = null;
 
-export type ToastVariant = "success" | "error" | "info";
+export type ToastVariant = 'success' | 'error' | 'info' | 'warning';
 
 export const showToast = (
     message: string,
