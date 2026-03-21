@@ -3,7 +3,14 @@ import { type ViteDevServer } from "vite";
 import path from "node:path";
 import { setupRoom } from "@nest/room";
 import { createRoomRouter } from "@nest/router";
-import { getNotes, getNote, createNote, updateNote, deleteNote, ensureHome } from "./util/notes";
+import {
+    getNotes,
+    getNote,
+    createNote,
+    updateNote,
+    deleteNote,
+    ensureHome,
+} from "./util/notes";
 
 // -------------------------
 // API
@@ -70,7 +77,17 @@ export const createFrontend = (vite?: ViteDevServer) =>
     createRoomRouter({
         roomName: "notes",
         srcDir: __dirname,
-        distPath: path.resolve(__dirname, "..", "..", "..", "dist", "rooms", "notes", "frontend", "index.html"),
+        distPath: path.resolve(
+            __dirname,
+            "..",
+            "..",
+            "..",
+            "dist",
+            "rooms",
+            "notes",
+            "frontend",
+            "index.html",
+        ),
         vite,
     });
 

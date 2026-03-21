@@ -12,30 +12,36 @@ const render = (container: HTMLElement): void => {
         </div>
     `;
 
-    const textarea = container.querySelector<HTMLTextAreaElement>('.widget-quicknote__input')!;
-    const saveBtn = container.querySelector<HTMLButtonElement>('.widget-quicknote__save')!;
+    const textarea = container.querySelector<HTMLTextAreaElement>(
+        ".widget-quicknote__input",
+    )!;
+    const saveBtn = container.querySelector<HTMLButtonElement>(
+        ".widget-quicknote__save",
+    )!;
 
     // Persist draft in localStorage between sessions
-    const DRAFT_KEY = 'nest:dashboard:quicknote';
-    textarea.value = localStorage.getItem(DRAFT_KEY) ?? '';
-    textarea.addEventListener('input', () => {
+    const DRAFT_KEY = "nest:dashboard:quicknote";
+    textarea.value = localStorage.getItem(DRAFT_KEY) ?? "";
+    textarea.addEventListener("input", () => {
         localStorage.setItem(DRAFT_KEY, textarea.value);
     });
 
-    saveBtn.addEventListener('click', async () => {
+    saveBtn.addEventListener("click", async () => {
         const content = textarea.value.trim();
         if (!content) {
             showToast("You must type something in your quick note!", "info");
             return;
-        };
+        }
 
-        const baseName = `Quick Note ${new Date().toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}`;
+        const baseName = `Quick Note ${new Date().toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}`;
 
         try {
             // Fetch existing entries to detect name collisions
-            const entriesRes = await fetch('/api/notes/entries');
+            const entriesRes = await fetch("/api/notes/entries");
             const entries: any[] = await entriesRes.json();
-            const existingNames = new Set(entries.map((e: any) => e.name.replace(/\.md$/, '')));
+            const existingNames = new Set(
+                entries.map((e: any) => e.name.replace(/\.md$/, "")),
+            );
 
             let name = baseName;
             if (existingNames.has(name)) {
@@ -44,20 +50,20 @@ const render = (container: HTMLElement): void => {
                 name = `${baseName} #${n}`;
             }
 
-            const res = await fetch('/api/notes/entries', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, content, folder: '/' }),
+            const res = await fetch("/api/notes/entries", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, content, folder: "/" }),
             });
             if (res.ok) {
-                textarea.value = '';
+                textarea.value = "";
                 localStorage.removeItem(DRAFT_KEY);
-                showToast('Saved as note', 'success');
+                showToast("Saved as note", "success");
             } else {
-                showToast('Failed to save', 'error');
+                showToast("Failed to save", "error");
             }
         } catch {
-            showToast('Failed to save', 'error');
+            showToast("Failed to save", "error");
         }
     });
 };

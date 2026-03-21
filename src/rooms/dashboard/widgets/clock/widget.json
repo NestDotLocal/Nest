@@ -1,1 +1,8 @@
-{ "id": "clock", "name": "Clock", "defaultW": 2, "defaultH": 3, "minW": 2, "minH": 2 }
+{
+    "id": "clock",
+    "name": "Clock",
+    "defaultW": 2,
+    "defaultH": 3,
+    "minW": 2,
+    "minH": 2
+}

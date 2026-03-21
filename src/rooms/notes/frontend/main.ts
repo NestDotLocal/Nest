@@ -21,9 +21,9 @@ const sidebar = document.getElementById("sidebar")!;
 // -------------------------
 let currentEntries: any[] = [];
 
-registerShortcut('s', async () => {
+registerShortcut("s", async () => {
     const ok = await saveCurrentNote(editor, currentEntries);
-    showToast(ok ? 'Saved' : 'Save failed', ok ? 'success' : 'error');
+    showToast(ok ? "Saved" : "Save failed", ok ? "success" : "error");
 });
 
 // -------------------------
@@ -34,7 +34,7 @@ const cached = getCachedEntries();
 if (cached) {
     currentEntries = cached;
     loadSidebar(sidebar, cached);
-    document.body.classList.add('ready');
+    document.body.classList.add("ready");
     const fresh = await requestNotes();
     setCachedEntries(fresh);
     currentEntries = fresh;
@@ -42,7 +42,7 @@ if (cached) {
     await loadCurrentNote(editor, fresh);
 } else {
     renderSkeleton(sidebar);
-    document.body.classList.add('ready');
+    document.body.classList.add("ready");
     const entries = await requestNotes();
     setCachedEntries(entries);
     currentEntries = entries;

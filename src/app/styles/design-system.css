@@ -38,7 +38,8 @@
         local("Segoe UI Emoji"),
         local("Segoe UI Symbol"),
         local("Noto Color Emoji"),
-        url("/app/fonts/noto-color-emoji-v39-emoji-regular.woff2") format("woff2");
+        url("/app/fonts/noto-color-emoji-v39-emoji-regular.woff2")
+            format("woff2");
     unicode-range:
         U+1F600- U+1F64F,
         U+1F300- U+1F5FF,
@@ -60,76 +61,82 @@
        Neutral backgrounds
        Four layers as per four-two-three rule
     ------------------------- */
-    --color-bg:         oklch(97% 0.008 80);   /* page background */
-    --color-bg-subtle:  oklch(95% 0.010 80);   /* inset areas, wells */
-    --color-surface:    oklch(92% 0.010 80);   /* cards, sidebars */
+    --color-bg: oklch(97% 0.008 80); /* page background */
+    --color-bg-subtle: oklch(95% 0.01 80); /* inset areas, wells */
+    --color-surface: oklch(92% 0.01 80); /* cards, sidebars */
     --color-surface-raised: oklch(89% 0.012 80); /* elevated cards, dropdowns */
 
     /* -------------------------
        Borders — two variants
     ------------------------- */
-    --color-border:        oklch(82% 0.010 80); /* subtle edges */
-    --color-border-strong: oklch(72% 0.012 80); /* dividers, prominent separations */
+    --color-border: oklch(82% 0.01 80); /* subtle edges */
+    --color-border-strong: oklch(
+        72% 0.012 80
+    ); /* dividers, prominent separations */
 
     /* -------------------------
        Text — three variants
     ------------------------- */
-    --color-text:         oklch(18% 0.005 80);  /* headings, primary content */
-    --color-text-muted:   oklch(45% 0.005 80);  /* body, secondary content */
-    --color-text-subtle:  oklch(62% 0.005 80);  /* placeholders, disabled labels */
+    --color-text: oklch(18% 0.005 80); /* headings, primary content */
+    --color-text-muted: oklch(45% 0.005 80); /* body, secondary content */
+    --color-text-subtle: oklch(
+        62% 0.005 80
+    ); /* placeholders, disabled labels */
 
     /* -------------------------
        Accent scale (warm orange, hue ~50)
        500/600 = main, 700 = hover, 400 = links, 100 = tinted backgrounds
     ------------------------- */
-    --color-accent-100: oklch(96% 0.030 50);
-    --color-accent-200: oklch(90% 0.060 50);
-    --color-accent-300: oklch(84% 0.090 50);
-    --color-accent-400: oklch(78% 0.110 50);
-    --color-accent-500: oklch(72% 0.130 50);
-    --color-accent-600: oklch(66% 0.140 50);
-    --color-accent-700: oklch(60% 0.140 50);
-    --color-accent-800: oklch(50% 0.130 50);
-    --color-accent-900: oklch(38% 0.110 50);
+    --color-accent-100: oklch(96% 0.03 50);
+    --color-accent-200: oklch(90% 0.06 50);
+    --color-accent-300: oklch(84% 0.09 50);
+    --color-accent-400: oklch(78% 0.11 50);
+    --color-accent-500: oklch(72% 0.13 50);
+    --color-accent-600: oklch(66% 0.14 50);
+    --color-accent-700: oklch(60% 0.14 50);
+    --color-accent-800: oklch(50% 0.13 50);
+    --color-accent-900: oklch(38% 0.11 50);
 
     /* Convenience aliases */
-    --color-accent:       var(--color-accent-500);
+    --color-accent: var(--color-accent-500);
     --color-accent-hover: var(--color-accent-700);
-    --color-accent-link:  var(--color-accent-400);
-    --color-text-on-accent: oklch(18% 0.005 80); /* overwritten by JS luminance fn for user-picked accents */
+    --color-accent-link: var(--color-accent-400);
+    --color-text-on-accent: oklch(
+        18% 0.005 80
+    ); /* overwritten by JS luminance fn for user-picked accents */
 
     /* -------------------------
        Semantic colors
     ------------------------- */
     /* Danger / destructive */
-    --color-danger:         oklch(55% 0.200 25);
-    --color-danger-subtle:  oklch(95% 0.040 25);
-    --color-danger-border:  oklch(80% 0.080 25);
-    --color-text-on-danger: oklch(99% 0.000 0);
+    --color-danger: oklch(55% 0.2 25);
+    --color-danger-subtle: oklch(95% 0.04 25);
+    --color-danger-border: oklch(80% 0.08 25);
+    --color-text-on-danger: oklch(99% 0 0);
 
     /* Success */
-    --color-success:         oklch(55% 0.160 145);
-    --color-success-subtle:  oklch(95% 0.040 145);
-    --color-success-border:  oklch(80% 0.080 145);
-    --color-text-on-success: oklch(99% 0.000 0);
+    --color-success: oklch(55% 0.16 145);
+    --color-success-subtle: oklch(95% 0.04 145);
+    --color-success-border: oklch(80% 0.08 145);
+    --color-text-on-success: oklch(99% 0 0);
 
     /* Warning */
-    --color-warning:         oklch(72% 0.170 80);
-    --color-warning-subtle:  oklch(96% 0.040 80);
-    --color-warning-border:  oklch(84% 0.090 80);
+    --color-warning: oklch(72% 0.17 80);
+    --color-warning-subtle: oklch(96% 0.04 80);
+    --color-warning-border: oklch(84% 0.09 80);
     --color-text-on-warning: oklch(18% 0.005 80);
 
     /* Info */
-    --color-info:         oklch(55% 0.160 240);
-    --color-info-subtle:  oklch(95% 0.040 240);
-    --color-info-border:  oklch(80% 0.080 240);
-    --color-text-on-info: oklch(99% 0.000 0);
+    --color-info: oklch(55% 0.16 240);
+    --color-info-subtle: oklch(95% 0.04 240);
+    --color-info-border: oklch(80% 0.08 240);
+    --color-text-on-info: oklch(99% 0 0);
 
     /* -------------------------
        Shadows
     ------------------------- */
-    --shadow-sm: 0 1px 3px oklch(20% 0.010 80 / 0.06);
-    --shadow-md: 0 4px 16px oklch(20% 0.010 80 / 0.08);
+    --shadow-sm: 0 1px 3px oklch(20% 0.01 80 / 0.06);
+    --shadow-md: 0 4px 16px oklch(20% 0.01 80 / 0.08);
 
     /* -------------------------
        Typography
@@ -139,20 +146,20 @@
         BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
         "Open Sans", "Helvetica Neue", sans-serif;
 
-    --font-size-xs:   11px;
-    --font-size-sm:   13px;
+    --font-size-xs: 11px;
+    --font-size-sm: 13px;
     --font-size-base: 15px;
-    --font-size-md:   17px;
-    --font-size-lg:   20px;
-    --font-size-xl:   24px;
-    --font-size-2xl:  28px;
+    --font-size-md: 17px;
+    --font-size-lg: 20px;
+    --font-size-xl: 24px;
+    --font-size-2xl: 28px;
 
-    --font-weight-light:   300;
+    --font-weight-light: 300;
     --font-weight-regular: 400;
-    --font-weight-medium:  500;
-    --font-weight-bold:    600;
+    --font-weight-medium: 500;
+    --font-weight-bold: 600;
 
-    --line-height-base:  1.5;
+    --line-height-base: 1.5;
     --line-height-tight: 1.2;
 
     --letter-spacing-label: 0.08em;
@@ -160,11 +167,11 @@
     /* -------------------------
        Spacing
     ------------------------- */
-    --space-xs:  4px;
-    --space-sm:  8px;
-    --space-md:  12px;
-    --space-lg:  16px;
-    --space-xl:  24px;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 24px;
     --space-2xl: 32px;
 
     /* -------------------------

@@ -35,27 +35,37 @@ const releaseLock = (room: string): void => {
 const toRelativePath = (roomDir: string, absPath: string): string =>
     absPath.replace(roomDir, "").replace(/\\/g, "/");
 
-const indexEntry = (room: string, roomDir: string, absPath: string, isDir: boolean): void => {
+const indexEntry = (
+    room: string,
+    roomDir: string,
+    absPath: string,
+    isDir: boolean,
+): void => {
     const filePath = toRelativePath(roomDir, absPath);
     const name = path.basename(absPath);
     if (name.startsWith(".")) return;
 
     try {
-        const existing = db.instance.query(
-            `SELECT uuid FROM storage WHERE room = ? AND path = ?`
-        ).get(room, filePath);
+        const existing = db.instance
+            .query(`SELECT uuid FROM storage WHERE room = ? AND path = ?`)
+            .get(room, filePath);
 
         if (!existing) {
-            db.instance.run(`
+            db.instance.run(
+                `
                 INSERT INTO storage (uuid, room, path, type, name, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            `, [
-                randomUUID(), room, filePath,
-                isDir ? "folder" : "file",
-                name,
-                new Date().toISOString(),
-                new Date().toISOString(),
-            ]);
+            `,
+                [
+                    randomUUID(),
+                    room,
+                    filePath,
+                    isDir ? "folder" : "file",
+                    name,
+                    new Date().toISOString(),
+                    new Date().toISOString(),
+                ],
+            );
             console.log(`[Storage] Indexed: ${filePath}`);
         }
     } catch (err) {
@@ -63,19 +73,24 @@ const indexEntry = (room: string, roomDir: string, absPath: string, isDir: boole
     }
 };
 
-const removeEntry = (room: string, roomDir: string, absPath: string, isDir: boolean): void => {
+const removeEntry = (
+    room: string,
+    roomDir: string,
+    absPath: string,
+    isDir: boolean,
+): void => {
     const filePath = toRelativePath(roomDir, absPath);
     try {
         if (isDir) {
             db.instance.run(
                 `DELETE FROM storage WHERE room = ? AND (path = ? OR path LIKE ?)`,
-                [room, filePath, `${filePath}/%`]
+                [room, filePath, `${filePath}/%`],
             );
         } else {
-            db.instance.run(
-                `DELETE FROM storage WHERE room = ? AND path = ?`,
-                [room, filePath]
-            );
+            db.instance.run(`DELETE FROM storage WHERE room = ? AND path = ?`, [
+                room,
+                filePath,
+            ]);
         }
         console.log(`[Storage] Removed from index: ${filePath}`);
     } catch (err) {
@@ -93,25 +108,42 @@ export const scanRoom = (room: string): void => {
             fs.mkdirSync(roomDir, { recursive: true });
             console.log(`[Storage] Created storage directory for: ${room}`);
         } catch (err) {
-            console.error(`[Storage] Failed to create storage directory for ${room}:`, err);
+            console.error(
+                `[Storage] Failed to create storage directory for ${room}:`,
+                err,
+            );
         }
         return;
     }
 
     let entries;
     try {
-        entries = fs.readdirSync(roomDir, { withFileTypes: true, recursive: true });
+        entries = fs.readdirSync(roomDir, {
+            withFileTypes: true,
+            recursive: true,
+        });
     } catch (err) {
-        console.error(`[Storage] Failed to read storage directory for ${room}:`, err);
+        console.error(
+            `[Storage] Failed to read storage directory for ${room}:`,
+            err,
+        );
         return;
     }
 
     for (const entry of entries) {
         if (entry.name.startsWith(".") || entry.isSymbolicLink()) continue;
         try {
-            indexEntry(room, roomDir, path.join(entry.parentPath, entry.name), entry.isDirectory());
+            indexEntry(
+                room,
+                roomDir,
+                path.join(entry.parentPath, entry.name),
+                entry.isDirectory(),
+            );
         } catch (err) {
-            console.warn(`[Storage] Skipping unreadable entry ${entry.name}:`, err);
+            console.warn(
+                `[Storage] Skipping unreadable entry ${entry.name}:`,
+                err,
+            );
         }
     }
 
@@ -127,9 +159,11 @@ export const reconcileRoom = (room: string): void => {
             if (!fs.existsSync(fullPath)) {
                 db.instance.run(
                     `DELETE FROM storage WHERE room = ? AND (path = ? OR path LIKE ?)`,
-                    [room, entry.path, `${entry.path}/%`]
+                    [room, entry.path, `${entry.path}/%`],
                 );
-                console.log(`[Storage] Reconciled (removed ghost): ${entry.path}`);
+                console.log(
+                    `[Storage] Reconciled (removed ghost): ${entry.path}`,
+                );
             }
         } catch (err) {
             console.warn(`[Storage] Failed to reconcile ${entry.path}:`, err);
@@ -146,7 +180,9 @@ const SCAN_INTERVAL_MS = 15 * 60 * 1000;
 export const startPeriodicScan = (room: string): void => {
     setInterval(() => {
         if (!acquireLock(room)) {
-            console.log(`[Storage] Scan already in progress for ${room}, skipping.`);
+            console.log(
+                `[Storage] Scan already in progress for ${room}, skipping.`,
+            );
             return;
         }
         try {
@@ -158,7 +194,9 @@ export const startPeriodicScan = (room: string): void => {
         }
     }, SCAN_INTERVAL_MS);
 
-    console.log(`[Storage] Periodic scan scheduled for: ${room} (every 15 min)`);
+    console.log(
+        `[Storage] Periodic scan scheduled for: ${room} (every 15 min)`,
+    );
 };
 
 // -------------------------
@@ -176,11 +214,11 @@ export const watchRoom = (room: string): void => {
     });
 
     watcher
-        .on('add',       (p) => indexEntry(room, roomDir, p, false))
-        .on('addDir',    (p) => indexEntry(room, roomDir, p, true))
-        .on('unlink',    (p) => removeEntry(room, roomDir, p, false))
-        .on('unlinkDir', (p) => removeEntry(room, roomDir, p, true))
-        .on('error',     (err) => console.error(`[Storage] Watcher error:`, err));
+        .on("add", (p) => indexEntry(room, roomDir, p, false))
+        .on("addDir", (p) => indexEntry(room, roomDir, p, true))
+        .on("unlink", (p) => removeEntry(room, roomDir, p, false))
+        .on("unlinkDir", (p) => removeEntry(room, roomDir, p, true))
+        .on("error", (err) => console.error(`[Storage] Watcher error:`, err));
 
     console.log(`[Storage] Watching: nest/storage/${room}`);
 };
@@ -189,26 +227,31 @@ export const watchRoom = (room: string): void => {
 // Public: CRUD
 // -------------------------
 export const listEntries = (room: string): StorageEntry[] =>
-    db.instance.query(
-        `SELECT * FROM storage WHERE room = ? ORDER BY type DESC, name ASC`
-    ).all(room) as StorageEntry[];
+    db.instance
+        .query(
+            `SELECT * FROM storage WHERE room = ? ORDER BY type DESC, name ASC`,
+        )
+        .all(room) as StorageEntry[];
 
-export const getEntry = (room: string, entryPath: string): StorageEntry | null =>
-    db.instance.query(
-        `SELECT * FROM storage WHERE room = ? AND path = ?`
-    ).get(room, entryPath) as StorageEntry | null;
+export const getEntry = (
+    room: string,
+    entryPath: string,
+): StorageEntry | null =>
+    db.instance
+        .query(`SELECT * FROM storage WHERE room = ? AND path = ?`)
+        .get(room, entryPath) as StorageEntry | null;
 
 export const getEntryByUuid = (uuid: string): StorageEntry | null =>
-    db.instance.query(
-        `SELECT * FROM storage WHERE uuid = ?`
-    ).get(uuid) as StorageEntry | null;
+    db.instance
+        .query(`SELECT * FROM storage WHERE uuid = ?`)
+        .get(uuid) as StorageEntry | null;
 
 export const createEntry = (
     room: string,
     entryPath: string,
     name: string,
     type: "file" | "folder",
-    content: string = ""
+    content: string = "",
 ): StorageEntry => {
     const roomDir = path.resolve(`nest/storage/${room}`);
     const fullPath = path.join(roomDir, entryPath);
@@ -222,15 +265,30 @@ export const createEntry = (
         fs.writeFileSync(fullPath, content, "utf-8");
     }
 
-    db.instance.run(`
+    db.instance.run(
+        `
         INSERT INTO storage (uuid, room, path, type, name, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, [uuid, room, entryPath, type, name, now, now]);
+    `,
+        [uuid, room, entryPath, type, name, now, now],
+    );
 
-    return { uuid, room, path: entryPath, type, name, created_at: now, updated_at: now };
+    return {
+        uuid,
+        room,
+        path: entryPath,
+        type,
+        name,
+        created_at: now,
+        updated_at: now,
+    };
 };
 
-export const updateEntry = (room: string, entryPath: string, content: string): boolean => {
+export const updateEntry = (
+    room: string,
+    entryPath: string,
+    content: string,
+): boolean => {
     const roomDir = path.resolve(`nest/storage/${room}`);
     const fullPath = path.join(roomDir, entryPath);
     if (!fs.existsSync(fullPath)) return false;
@@ -238,7 +296,7 @@ export const updateEntry = (room: string, entryPath: string, content: string): b
     fs.writeFileSync(fullPath, content, "utf-8");
     db.instance.run(
         `UPDATE storage SET updated_at = ? WHERE room = ? AND path = ?`,
-        [now, room, entryPath]
+        [now, room, entryPath],
     );
     return true;
 };
@@ -252,14 +310,14 @@ export const deleteEntry = (room: string, entryPath: string): boolean => {
         fs.rmSync(fullPath, { recursive: true });
         db.instance.run(
             `DELETE FROM storage WHERE room = ? AND (path = ? OR path LIKE ?)`,
-            [room, entryPath, `${entryPath}/%`]
+            [room, entryPath, `${entryPath}/%`],
         );
     } else {
         fs.unlinkSync(fullPath);
-        db.instance.run(
-            `DELETE FROM storage WHERE room = ? AND path = ?`,
-            [room, entryPath]
-        );
+        db.instance.run(`DELETE FROM storage WHERE room = ? AND path = ?`, [
+            room,
+            entryPath,
+        ]);
     }
     return true;
 };

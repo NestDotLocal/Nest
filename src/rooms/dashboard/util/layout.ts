@@ -12,9 +12,9 @@ export interface WidgetLayout {
 const LAYOUT_PATH = path.resolve("nest/storage/dashboard/layout.json");
 
 const DEFAULT_LAYOUT: WidgetLayout[] = [
-    { id: "clock",     x: 0, y: 0, w: 2, h: 3 },
-    { id: "notes",     x: 2, y: 0, w: 3, h: 6 },
-    { id: "github",    x: 5, y: 0, w: 7, h: 3 },
+    { id: "clock", x: 0, y: 0, w: 2, h: 3 },
+    { id: "notes", x: 2, y: 0, w: 3, h: 6 },
+    { id: "github", x: 5, y: 0, w: 7, h: 3 },
     { id: "quicknote", x: 5, y: 3, w: 7, h: 3 },
 ];
 
@@ -24,7 +24,10 @@ export const getLayout = (): WidgetLayout[] => {
         const raw = fs.readFileSync(LAYOUT_PATH, "utf-8");
         return JSON.parse(raw) as WidgetLayout[];
     } catch (err) {
-        console.warn("[Dashboard] Failed to read layout.json, using default:", err);
+        console.warn(
+            "[Dashboard] Failed to read layout.json, using default:",
+            err,
+        );
         return DEFAULT_LAYOUT;
     }
 };

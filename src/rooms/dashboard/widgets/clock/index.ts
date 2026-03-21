@@ -9,13 +9,20 @@ const render = (container: HTMLElement): void => {
         </div>
     `;
 
-    const timeEl = container.querySelector<HTMLElement>('.widget-clock__time')!;
-    const dateEl = container.querySelector<HTMLElement>('.widget-clock__date')!;
+    const timeEl = container.querySelector<HTMLElement>(".widget-clock__time")!;
+    const dateEl = container.querySelector<HTMLElement>(".widget-clock__date")!;
 
     const tick = () => {
         const now = new Date();
-        timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        dateEl.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+        timeEl.textContent = now.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+        dateEl.textContent = now.toLocaleDateString([], {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+        });
     };
 
     tick();

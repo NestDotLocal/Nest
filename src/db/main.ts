@@ -5,7 +5,7 @@ import path from "path";
 const dbPath = path.join(__dirname, "..", "..", "nest", "nest.db");
 
 const db = {
-    instance: new Database(dbPath)
+    instance: new Database(dbPath),
 };
 
 function initializeDatabase() {
@@ -69,7 +69,9 @@ function initializeDatabase() {
         fs.readdirSync(roomsDir).forEach((room) => {
             const roomPath = path.join(roomsDir, room);
             if (!fs.lstatSync(roomPath).isDirectory()) return;
-            db.instance.run("INSERT OR IGNORE INTO rooms (name) VALUES (?)", [room]);
+            db.instance.run("INSERT OR IGNORE INTO rooms (name) VALUES (?)", [
+                room,
+            ]);
         });
 
         console.log("Welcome to Nest!");

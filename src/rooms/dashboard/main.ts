@@ -35,13 +35,15 @@ apiRouter.get("/widgets", (_req, res) => {
     // Return available widget manifests — read from widget.json files at runtime
     // to avoid bundling server-side widget code on the client
     const widgetDirs = ["clock", "notes", "github", "quicknote"];
-    const manifests = widgetDirs.map(id => {
-        try {
-            return require(`./widgets/${id}/widget.json`);
-        } catch {
-            return null;
-        }
-    }).filter(Boolean);
+    const manifests = widgetDirs
+        .map((id) => {
+            try {
+                return require(`./widgets/${id}/widget.json`);
+            } catch {
+                return null;
+            }
+        })
+        .filter(Boolean);
     res.json(manifests);
 });
 
@@ -54,7 +56,17 @@ export const createFrontend = (vite?: ViteDevServer) =>
     createRoomRouter({
         roomName: "dashboard",
         srcDir: __dirname,
-        distPath: path.resolve(__dirname, "..", "..", "..", "dist", "rooms", "dashboard", "frontend", "index.html"),
+        distPath: path.resolve(
+            __dirname,
+            "..",
+            "..",
+            "..",
+            "dist",
+            "rooms",
+            "dashboard",
+            "frontend",
+            "index.html",
+        ),
         vite,
     });
 

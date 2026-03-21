@@ -1,4 +1,9 @@
-import { scanRoom, reconcileRoom, watchRoom, startPeriodicScan } from "@nest/storage";
+import {
+    scanRoom,
+    reconcileRoom,
+    watchRoom,
+    startPeriodicScan,
+} from "@nest/storage";
 
 interface RoomSetupOptions {
     room: string;

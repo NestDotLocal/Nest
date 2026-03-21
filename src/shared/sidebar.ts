@@ -1,4 +1,10 @@
-import { createElement, FileText, Folder, FolderOpen, ChevronRight } from "lucide";
+import {
+    createElement,
+    FileText,
+    Folder,
+    FolderOpen,
+    ChevronRight,
+} from "lucide";
 
 export interface SidebarEntry {
     uuid: string;
@@ -9,10 +15,10 @@ export interface SidebarEntry {
 }
 
 export interface SidebarOptions {
-    basePath: string;         // e.g. '/notes'
-    apiPath: string;          // e.g. '/api/notes/entries'
-    openFoldersKey: string;   // localStorage key for persisting open folders
-    onFileClick?: (entry: SidebarEntry) => void;  // override default navigation
+    basePath: string; // e.g. '/notes'
+    apiPath: string; // e.g. '/api/notes/entries'
+    openFoldersKey: string; // localStorage key for persisting open folders
+    onFileClick?: (entry: SidebarEntry) => void; // override default navigation
 }
 
 // -------------------------
@@ -36,10 +42,13 @@ export const saveOpenFolders = (key: string, set: Set<string>): void => {
 // -------------------------
 let selectedEntry: SidebarEntry | null = null;
 
-export const setSelected = (entry: SidebarEntry | null, el: HTMLElement | null): void => {
-    document.querySelector('.entry.selected')?.classList.remove('selected');
+export const setSelected = (
+    entry: SidebarEntry | null,
+    el: HTMLElement | null,
+): void => {
+    document.querySelector(".entry.selected")?.classList.remove("selected");
     selectedEntry = entry;
-    if (el && entry) el.classList.add('selected');
+    if (el && entry) el.classList.add("selected");
 };
 
 export const getSelectedEntry = (): SidebarEntry | null => selectedEntry;
@@ -51,15 +60,16 @@ export const buildTree = (entries: SidebarEntry[]): Record<string, any> => {
     const root: Record<string, any> = {};
 
     const sorted = [...entries].sort((a, b) => {
-        if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
+        if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
         return a.name.localeCompare(b.name);
     });
 
     for (const entry of sorted) {
-        const parts = entry.path.replace(/^\//, '').split('/');
+        const parts = entry.path.replace(/^\//, "").split("/");
         let node = root;
         for (let i = 0; i < parts.length - 1; i++) {
-            if (!node[parts[i]]) node[parts[i]] = { __entry: null, __children: {} };
+            if (!node[parts[i]])
+                node[parts[i]] = { __entry: null, __children: {} };
             node = node[parts[i]].__children;
         }
         const key = parts[parts.length - 1]!;
@@ -76,29 +86,44 @@ export const buildTree = (entries: SidebarEntry[]): Record<string, any> => {
 // -------------------------
 // Entry element
 // -------------------------
-const createEntryEl = (entry: SidebarEntry, depth: number, basePath: string): HTMLElement => {
-    const isFolder = entry.type === 'folder';
-    const isActive = window.location.pathname === `${basePath}${entry.path
-        .split('/').map(encodeURIComponent).join('/')}`;
+const createEntryEl = (
+    entry: SidebarEntry,
+    depth: number,
+    basePath: string,
+): HTMLElement => {
+    const isFolder = entry.type === "folder";
+    const isActive =
+        window.location.pathname ===
+        `${basePath}${entry.path.split("/").map(encodeURIComponent).join("/")}`;
     const isSelected = selectedEntry?.path === entry.path;
 
-    const el = document.createElement('button');
-    el.className = `entry ${entry.type}${isActive ? ' active' : ''}${isSelected ? ' selected' : ''}`;
+    const el = document.createElement("button");
+    el.className = `entry ${entry.type}${isActive ? " active" : ""}${isSelected ? " selected" : ""}`;
     el.style.paddingLeft = `${8 + depth * 20}px`;
 
     if (isFolder) {
-        el.appendChild(createElement(ChevronRight, {
-            class: 'chevron', width: '14', height: '14', 'stroke-width': '2',
-        }));
+        el.appendChild(
+            createElement(ChevronRight, {
+                class: "chevron",
+                width: "14",
+                height: "14",
+                "stroke-width": "2",
+            }),
+        );
     }
 
-    el.appendChild(createElement(isFolder ? Folder : FileText, {
-        class: 'icon', width: '15', height: '15', 'stroke-width': '1.75',
-    }));
+    el.appendChild(
+        createElement(isFolder ? Folder : FileText, {
+            class: "icon",
+            width: "15",
+            height: "15",
+            "stroke-width": "1.75",
+        }),
+    );
 
-    const name = document.createElement('span');
-    name.className = 'name';
-    name.textContent = entry.name.replace(/\.md$/, '');
+    const name = document.createElement("span");
+    name.className = "name";
+    name.textContent = entry.name.replace(/\.md$/, "");
     el.appendChild(name);
 
     return el;
@@ -107,22 +132,44 @@ const createEntryEl = (entry: SidebarEntry, depth: number, basePath: string): HT
 // -------------------------
 // Folder open/close
 // -------------------------
-const openFolder = (el: HTMLElement, childContainer: HTMLElement, folderPath: string, openSet: Set<string>, openFoldersKey: string): void => {
-    el.classList.add('open');
-    el.querySelector('.icon')?.replaceWith(
-        createElement(FolderOpen, { class: 'icon', width: '15', height: '15', 'stroke-width': '1.75' })
+const openFolder = (
+    el: HTMLElement,
+    childContainer: HTMLElement,
+    folderPath: string,
+    openSet: Set<string>,
+    openFoldersKey: string,
+): void => {
+    el.classList.add("open");
+    el.querySelector(".icon")?.replaceWith(
+        createElement(FolderOpen, {
+            class: "icon",
+            width: "15",
+            height: "15",
+            "stroke-width": "1.75",
+        }),
     );
-    childContainer.classList.add('open');
+    childContainer.classList.add("open");
     openSet.add(folderPath);
     saveOpenFolders(openFoldersKey, openSet);
 };
 
-const closeFolder = (el: HTMLElement, childContainer: HTMLElement, folderPath: string, openSet: Set<string>, openFoldersKey: string): void => {
-    el.classList.remove('open');
-    el.querySelector('.icon')?.replaceWith(
-        createElement(Folder, { class: 'icon', width: '15', height: '15', 'stroke-width': '1.75' })
+const closeFolder = (
+    el: HTMLElement,
+    childContainer: HTMLElement,
+    folderPath: string,
+    openSet: Set<string>,
+    openFoldersKey: string,
+): void => {
+    el.classList.remove("open");
+    el.querySelector(".icon")?.replaceWith(
+        createElement(Folder, {
+            class: "icon",
+            width: "15",
+            height: "15",
+            "stroke-width": "1.75",
+        }),
     );
-    childContainer.classList.remove('open');
+    childContainer.classList.remove("open");
     openSet.delete(folderPath);
     saveOpenFolders(openFoldersKey, openSet);
 };
@@ -135,7 +182,7 @@ export const renderTree = (
     container: HTMLElement,
     options: SidebarOptions,
     openSet: Set<string>,
-    depth: number = 0
+    depth: number = 0,
 ): void => {
     for (const key of Object.keys(node)) {
         const { __entry: entry, __children: children } = node[key];
@@ -144,25 +191,30 @@ export const renderTree = (
         const el = createEntryEl(entry, depth, options.basePath);
         container.appendChild(el);
 
-        const isFolder = entry.type === 'folder';
+        const isFolder = entry.type === "folder";
         const hasChildren = Object.keys(children).length > 0;
 
         if (isFolder && hasChildren) {
-            const childContainer = document.createElement('div');
-            childContainer.className = 'folder-children';
+            const childContainer = document.createElement("div");
+            childContainer.className = "folder-children";
             renderTree(children, childContainer, options, openSet, depth + 1);
             container.appendChild(childContainer);
 
             let open = openSet.has(entry.path);
             if (open) {
-                el.classList.add('open');
-                el.querySelector('.icon')?.replaceWith(
-                    createElement(FolderOpen, { class: 'icon', width: '15', height: '15', 'stroke-width': '1.75' })
+                el.classList.add("open");
+                el.querySelector(".icon")?.replaceWith(
+                    createElement(FolderOpen, {
+                        class: "icon",
+                        width: "15",
+                        height: "15",
+                        "stroke-width": "1.75",
+                    }),
                 );
-                childContainer.classList.add('open');
+                childContainer.classList.add("open");
             }
 
-            el.addEventListener('click', () => {
+            el.addEventListener("click", () => {
                 if (selectedEntry?.path === entry.path) {
                     setSelected(null, null);
                 } else {
@@ -170,13 +222,25 @@ export const renderTree = (
                 }
                 open = !open;
                 if (open) {
-                    openFolder(el, childContainer, entry.path, openSet, options.openFoldersKey);
+                    openFolder(
+                        el,
+                        childContainer,
+                        entry.path,
+                        openSet,
+                        options.openFoldersKey,
+                    );
                 } else {
-                    closeFolder(el, childContainer, entry.path, openSet, options.openFoldersKey);
+                    closeFolder(
+                        el,
+                        childContainer,
+                        entry.path,
+                        openSet,
+                        options.openFoldersKey,
+                    );
                 }
             });
         } else if (isFolder) {
-            el.addEventListener('click', () => {
+            el.addEventListener("click", () => {
                 if (selectedEntry?.path === entry.path) {
                     setSelected(null, null);
                 } else {
@@ -184,15 +248,15 @@ export const renderTree = (
                 }
             });
         } else {
-            el.addEventListener('click', () => {
+            el.addEventListener("click", () => {
                 setSelected(entry, el);
                 if (options.onFileClick) {
                     options.onFileClick(entry);
                 } else {
                     const encodedPath = entry.path
-                        .split('/')
+                        .split("/")
                         .map((s: string) => encodeURIComponent(s))
-                        .join('/');
+                        .join("/");
                     window.location.href = `${options.basePath}${encodedPath}`;
                 }
             });
@@ -204,13 +268,13 @@ export const renderTree = (
 // Skeleton
 // -------------------------
 export const renderSkeleton = (container: HTMLElement): void => {
-    container.innerHTML = '';
-    const widths = ['55%', '40%', '70%', '45%', '60%'];
+    container.innerHTML = "";
+    const widths = ["55%", "40%", "70%", "45%", "60%"];
     for (const w of widths) {
-        const el = document.createElement('div');
-        el.className = 'skeleton-entry';
-        const bar = document.createElement('div');
-        bar.className = 'skeleton-bar';
+        const el = document.createElement("div");
+        el.className = "skeleton-entry";
+        const bar = document.createElement("div");
+        bar.className = "skeleton-bar";
         bar.style.width = w;
         el.appendChild(bar);
         container.appendChild(el);

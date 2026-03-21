@@ -1,9 +1,19 @@
-import { listEntries, getEntry, getEntryByUuid, createEntry, updateEntry, deleteEntry, readFile } from "@nest/storage";
+import {
+    listEntries,
+    getEntry,
+    getEntryByUuid,
+    createEntry,
+    updateEntry,
+    deleteEntry,
+    readFile,
+} from "@nest/storage";
 import type { StorageEntry } from "@nest/storage";
 
 export const getNotes = (): StorageEntry[] => listEntries("notes");
 
-export const getNote = (uuid: string): (StorageEntry & { content: string | null }) | null => {
+export const getNote = (
+    uuid: string,
+): (StorageEntry & { content: string | null }) | null => {
     const entry = getEntryByUuid(uuid);
     if (!entry) return null;
     return { ...entry, content: readFile("notes", entry.path) };
@@ -17,8 +27,12 @@ export const ensureHome = (): StorageEntry => {
     return createEntry("notes", "/Home.md", "Home", "file", HOME_CONTENT);
 };
 
-export const createNote = (name: string, content: string = "", folder: string = "/"): StorageEntry => {
-    const dir = folder.endsWith('/') ? folder : `${folder}/`;
+export const createNote = (
+    name: string,
+    content: string = "",
+    folder: string = "/",
+): StorageEntry => {
+    const dir = folder.endsWith("/") ? folder : `${folder}/`;
     return createEntry("notes", `${dir}${name}.md`, name, "file", content);
 };
 
