@@ -24,7 +24,10 @@ const render = (container: HTMLElement): void => {
 
     saveBtn.addEventListener('click', async () => {
         const content = textarea.value.trim();
-        if (!content) return;
+        if (!content) {
+            showToast("You must type something in your quick note!", "info");
+            return;
+        };
 
         const baseName = `Quick Note ${new Date().toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}`;
 
