@@ -18,8 +18,11 @@ const grid = GridStack.init({
     cellHeight: 80,
     animate: true,
     margin: 8,
-    handleClass: 'widget-handle',
+    handle: '.widget-handle',
     resizable: { handles: 'e, se, s, sw, w' },
+    draggable: {
+        cancel: '.widget-card__body'
+    }
 });
 
 // -------------------------
@@ -83,7 +86,7 @@ const mountWidget = (layout: WidgetLayout): void => {
 const unmountWidget = (id: string): void => {
     const body = mountedWidgets.get(id);
     if (!body) return;
-    getWidget(id)?.destroy?.(body);
+    getWidget(id)?.destroy?.();
     mountedWidgets.delete(id);
     renderEmptyState();
 };
