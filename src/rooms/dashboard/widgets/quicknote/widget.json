@@ -1,0 +1,8 @@
+{
+    "id": "quicknote",
+    "name": "Quick Note",
+    "defaultW": 5,
+    "defaultH": 3,
+    "minW": 3,
+    "minH": 2
+}

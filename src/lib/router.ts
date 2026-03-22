@@ -1,19 +1,33 @@
-import { Router, type Request, type Response, type NextFunction } from "express";
+import {
+    Router,
+    type Request,
+    type Response,
+    type NextFunction,
+} from "express";
 import { type ViteDevServer } from "vite";
 import fs from "node:fs";
 import path from "node:path";
 
 interface RoomRouterOptions {
     roomName: string;
-    srcDir: string;    // __dirname of the room's main.ts
-    distPath: string;  // absolute path to the built index.html in dist
+    srcDir: string; // __dirname of the room's main.ts
+    distPath: string; // absolute path to the built index.html in dist
     vite?: ViteDevServer;
 }
 
-export const createRoomRouter = ({ roomName, srcDir, distPath, vite }: RoomRouterOptions): Router => {
+export const createRoomRouter = ({
+    roomName,
+    srcDir,
+    distPath,
+    vite,
+}: RoomRouterOptions): Router => {
     const router = Router();
 
-    const serveHtml = async (url: string, res: Response, next: NextFunction): Promise<void> => {
+    const serveHtml = async (
+        url: string,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
         try {
             const htmlPath = vite
                 ? path.resolve(srcDir, "frontend/index.html")
