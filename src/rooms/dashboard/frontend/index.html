@@ -1,37 +1,37 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>Dashboard — Nest</title>
-        <link rel="stylesheet" href="/app/styles/design-system.css" />
-        <link rel="stylesheet" href="/app/styles/base.css" />
-        <link rel="stylesheet" href="/rooms/dashboard/frontend/main.css" />
-        <script type="module" src="/rooms/dashboard/frontend/main.ts"></script>
-    </head>
-    <body>
-        <div id="topbar">
-            <span class="topbar-wordmark">nest</span>
-            <nav class="topbar-nav">
-                <a
-                    class="topbar-nav__item topbar-nav__item--active"
-                    href="/dashboard"
-                    >Dashboard</a
-                >
-                <a class="topbar-nav__item" href="/notes">Notes</a>
-            </nav>
-            <button id="add-widget-btn">+ Add widget</button>
-        </div>
-        <div id="grid-container">
-            <div class="grid-stack" id="grid"></div>
-        </div>
 
-        <!-- Add widget panel -->
-        <div id="widget-panel" class="widget-panel hidden">
-            <div class="widget-panel__header">
-                <span class="widget-panel__title">Add widget</span>
-                <button id="widget-panel-close">✕</button>
-            </div>
-            <div id="widget-panel-list" class="widget-panel__list"></div>
+<head>
+    <meta charset="UTF-8" />
+    <title>Dashboard — Nest</title>
+    <link rel="stylesheet" href="/app/styles/design-system.css" />
+    <link rel="stylesheet" href="/app/styles/base.css" />
+    <link rel="stylesheet" href="/rooms/dashboard/frontend/main.css" />
+    <script type="module" src="/rooms/dashboard/frontend/main.ts"></script>
+    <link rel="stylesheet" href="/app/styles/components/toasts.css" />
+</head>
+
+<body>
+    <div id="topbar">
+        <span class="topbar-wordmark">nest</span>
+        <nav class="topbar-nav">
+            <a class="topbar-nav__item topbar-nav__item--active" href="/dashboard">Dashboard</a>
+            <a class="topbar-nav__item" href="/notes">Notes</a>
+        </nav>
+        <button id="add-widget-btn">+ Add widget</button>
+    </div>
+    <div id="grid-container">
+        <div class="grid-stack" id="grid"></div>
+    </div>
+
+    <!-- Add widget panel -->
+    <div id="widget-panel" class="widget-panel hidden">
+        <div class="widget-panel__header">
+            <span class="widget-panel__title">Add widget</span>
+            <button id="widget-panel-close">✕</button>
         </div>
-    </body>
+        <div id="widget-panel-list" class="widget-panel__list"></div>
+    </div>
+</body>
+
 </html>
