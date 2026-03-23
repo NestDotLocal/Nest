@@ -88,7 +88,7 @@ const mountWidget = (layout: WidgetLayout): void => {
 const unmountWidget = (id: string): void => {
     const body = mountedWidgets.get(id);
     if (!body) return;
-    getWidget(id)?.destroy?.();
+    getWidget(id)?.destroy?.(body);
     mountedWidgets.delete(id);
     renderEmptyState();
 };

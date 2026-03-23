@@ -1,8 +1,5 @@
-import { Router } from "express";
-import { type ViteDevServer } from "vite";
 import path from "node:path";
-import { setupRoom } from "@nest/room";
-import { createRoomRouter } from "@nest/router";
+import { Room } from "@nest/room";
 import {
     getNotes,
     getNote,
@@ -12,20 +9,22 @@ import {
     ensureHome,
 } from "./util/notes";
 
-// -------------------------
-// API
-// -------------------------
-const apiRouter = Router();
+export const room = new Room({
+    name: "notes",
+    srcDir: __dirname,
+    distDir: path.resolve(__dirname, "..", "..", "..", "dist"),
+    ensure: ensureHome,
+});
 
-apiRouter.get("/", (_req, res) => {
+room.api.get("/", (_req, res) => {
     res.json({ room: "notes", status: "ok" });
 });
 
-apiRouter.get("/entries", (_req, res) => {
+room.api.get("/entries", (_req, res) => {
     res.json(getNotes());
 });
 
-apiRouter.post("/entries", (req, res) => {
+room.api.post("/entries", (req, res) => {
     const { name, content = "", folder = "/" } = req.body;
     if (!name) {
         res.status(400).json({ error: "name is required" });
@@ -38,7 +37,7 @@ apiRouter.post("/entries", (req, res) => {
     }
 });
 
-apiRouter.get("/entries/:id", (req, res) => {
+room.api.get("/entries/:id", (req, res) => {
     const note = getNote(req.params.id);
     if (!note) {
         res.status(404).json({ error: "Note not found" });
@@ -47,7 +46,7 @@ apiRouter.get("/entries/:id", (req, res) => {
     res.json(note);
 });
 
-apiRouter.patch("/entries/:id", (req, res) => {
+room.api.patch("/entries/:id", (req, res) => {
     const { content } = req.body;
     if (content === undefined) {
         res.status(400).json({ error: "content is required" });
@@ -60,40 +59,10 @@ apiRouter.patch("/entries/:id", (req, res) => {
     res.json({ success: true });
 });
 
-apiRouter.delete("/entries/:id", (req, res) => {
+room.api.delete("/entries/:id", (req, res) => {
     if (!deleteNote(req.params.id)) {
         res.status(404).json({ error: "Note not found" });
         return;
     }
     res.json({ success: true });
 });
-
-export { apiRouter as api };
-
-// -------------------------
-// Frontend
-// -------------------------
-export const createFrontend = (vite?: ViteDevServer) =>
-    createRoomRouter({
-        roomName: "notes",
-        srcDir: __dirname,
-        distPath: path.resolve(
-            __dirname,
-            "..",
-            "..",
-            "..",
-            "dist",
-            "rooms",
-            "notes",
-            "frontend",
-            "index.html",
-        ),
-        vite,
-    });
-
-// -------------------------
-// Setup
-// -------------------------
-export const setup = async (): Promise<void> => {
-    setupRoom({ room: "notes", ensure: ensureHome });
-};
