@@ -1,14 +1,15 @@
 import { type Express } from "express";
 import { type ViteDevServer } from "vite";
+import { type Room } from "@nest/room";
 import fs from "node:fs";
 import path from "node:path";
 
-export const loadApps = async (app: Express, vite?: ViteDevServer) => {
-    const appsPath = path.resolve("src/rooms");
-    if (!fs.existsSync(appsPath)) return;
+export const loadRooms = async (app: Express, vite?: ViteDevServer) => {
+    const roomsPath = path.resolve("src/rooms");
+    if (!fs.existsSync(roomsPath)) return;
 
     const reserved = ["static", "api", "favicon.ico"];
-    const entries = fs.readdirSync(appsPath, { withFileTypes: true });
+    const entries = fs.readdirSync(roomsPath, { withFileTypes: true });
 
     for (const entry of entries) {
         if (!entry.isDirectory()) continue;
@@ -16,46 +17,30 @@ export const loadApps = async (app: Express, vite?: ViteDevServer) => {
         const roomName = entry.name;
 
         if (reserved.includes(roomName)) {
-            console.warn(`[Router] Skipping reserved name: ${roomName}`);
+            console.warn(`[Loader] Skipping reserved name: ${roomName}`);
             continue;
         }
 
-        const appDir = path.join(appsPath, roomName);
-        const mainPath = path.join(appDir, "main.ts");
+        const mainPath = path.join(roomsPath, roomName, "main.ts");
 
         if (!fs.existsSync(mainPath)) {
-            console.warn(`[Router] No main.ts found for: ${roomName}`);
+            console.warn(`[Loader] No main.ts found for: ${roomName}`);
             continue;
         }
 
         try {
             const module = await import(mainPath);
-            const { api, createFrontend, setup } = module;
+            const room: Room | undefined = module.room;
 
-            if (api) {
-                app.use(`/api/${roomName}`, api);
-                console.log(`[API] Loaded: /api/${roomName}`);
-            } else {
-                console.warn(`[API] No api export for: ${roomName}`);
+            if (!room) {
+                console.warn(`[Loader] No room export for: ${roomName}`);
+                continue;
             }
 
-            if (createFrontend) {
-                const router = createFrontend(vite);
-                app.use(`/${roomName}`, router);
-                console.log(`[Frontend] Loaded: /${roomName}`);
-            } else {
-                console.warn(
-                    `[Frontend] No createFrontend export for: ${roomName}`,
-                );
-            }
-
-            if (setup) {
-                await setup();
-            }
+            room.mount(app, vite);
+            room.setup();
         } catch (err) {
-            console.error(`[Router] Failed to load: ${roomName}`, err);
+            console.error(`[Loader] Failed to load: ${roomName}`, err);
         }
-
-        console.log(`[Router] Loaded room: ${roomName}`);
     }
 };

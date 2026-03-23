@@ -1,7 +1,7 @@
 import express from "express";
 import db, { resetDatabase } from "../db/main";
 import path from "path";
-import { loadApps } from "./util/loader";
+import { loadRooms } from "./util/loader";
 import { createServer as createViteServer } from "vite";
 
 const app = express();
@@ -27,7 +27,7 @@ app.get("/api/rooms", (req, res) => {
 });
 
 if (process.env.NODE_ENV === "production") {
-    await loadApps(app);
+    await loadRooms(app);
     app.use("/", express.static(path.resolve("dist")));
 } else {
     const vite = await createViteServer({
@@ -35,7 +35,7 @@ if (process.env.NODE_ENV === "production") {
         appType: "custom",
     });
     app.use(vite.middlewares);
-    await loadApps(app, vite);
+    await loadRooms(app, vite);
 }
 
 app.listen(port, "127.0.0.1", () => {

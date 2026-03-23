@@ -10,5 +10,5 @@ export interface WidgetManifest {
 export interface Widget {
     manifest: WidgetManifest;
     render: (container: HTMLElement) => void;
-    destroy?: () => void;
+    destroy?: (container: HTMLElement) => void;
 }
