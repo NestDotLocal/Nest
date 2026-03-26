@@ -6,6 +6,23 @@ import { registerShortcut } from "@nest/keys";
 import { requestNotes, getCachedEntries, setCachedEntries } from "./api";
 import { loadSidebar, renderSkeleton } from "./sidebar";
 import { loadCurrentNote, saveCurrentNote } from "./editor";
+import { createElement, Plus } from "lucide";
+
+// -------------------------
+// Add date button
+// -------------------------
+const addDateBtn = document.getElementById("attributes__add-date")!;
+const dateInput = document.getElementById("attributes__date") as HTMLInputElement;
+
+addDateBtn.appendChild(createElement(Plus));
+
+addDateBtn.addEventListener("click", () => {
+    const today = new Date().toISOString().slice(0, 10);
+    dateInput.value = today;
+    dateInput.style.display = "block";
+    addDateBtn.style.display = "none";
+    dateInput.showPicker?.();
+});
 
 const editor = await Editor.make()
     .config((ctx) => {

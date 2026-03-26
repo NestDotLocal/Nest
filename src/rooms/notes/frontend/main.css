@@ -34,6 +34,94 @@ body.ready {
 }
 
 /* -------------------------
+   Attributes
+------------------------- */
+#attributes {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#attributes__add-date {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 28px;
+    margin-top: var(--space-md);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--transition-speed);
+    position: relative;
+}
+
+#attributes__add-date::before,
+#attributes__add-date::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 1px;
+    width: calc(50% - 36px);
+    background: var(--color-border);
+    transition: background var(--transition-speed);
+}
+
+#attributes__add-date::before { left: 16px; }
+#attributes__add-date::after { right: 16px; }
+
+#attributes__add-date svg {
+    width: 28px;
+    height: 28px;
+    color: var(--color-border);
+    flex-shrink: 0;
+    z-index: 1;
+    transition: color var(--transition-speed);
+}
+
+#attributes:hover #attributes__add-date {
+    opacity: 1;
+}
+
+#attributes__add-date:hover::before,
+#attributes__add-date:hover::after {
+    background: var(--color-accent);
+}
+
+#attributes__add-date:hover svg {
+    color: var(--color-accent);
+}
+
+#attributes__date {
+    display: none;
+    width: fit-content;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 0;
+    padding: var(--space-sm) 16px;
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-subtle);
+    cursor: pointer;
+    outline: none;
+    transition: border-color var(--transition-speed), color var(--transition-speed);
+}
+
+#attributes__date:hover {
+    border-color: var(--color-accent);
+    color: var(--color-text);
+}
+
+#attributes__date:focus {
+    border-color: var(--color-accent);
+    color: var(--color-text);
+}
+
+/* -------------------------
    Sidebar
 ------------------------- */
 #sidebar {
