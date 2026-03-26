@@ -1,9 +1,7 @@
 import { type Editor } from "@milkdown/kit/core";
 import { replaceAll, getMarkdown } from "@milkdown/kit/utils";
+import fm from "front-matter";
 
-// -------------------------
-// Note loading
-// -------------------------
 export const loadCurrentNote = async (
     editor: Editor,
     entries: any[],
@@ -25,7 +23,26 @@ export const loadCurrentNote = async (
 
     const res = await fetch(`/api/notes/entries/${currentNote.uuid}`);
     const data = await res.json();
-    editor.action(replaceAll(data.content ?? "", true));
+
+    const { attributes, body } = fm<{ date?: string | Date; }>(data.content ?? "");
+
+    const dateEl = document.getElementById("attributes__date") as HTMLInputElement;
+    const addDateBtn = document.getElementById("attributes__add-date") as HTMLButtonElement;
+
+    if (attributes.date) {
+        const dateStr = attributes.date instanceof Date
+            ? attributes.date.toISOString().slice(0, 10)
+            : String(attributes.date);
+        dateEl.value = dateStr;
+        dateEl.style.display = "block";
+        addDateBtn.style.display = "none";
+    } else {
+        dateEl.value = "";
+        dateEl.style.display = "none";
+        addDateBtn.style.display = "flex";
+    }
+
+    editor.action(replaceAll(body, true));
 };
 
 // -------------------------
@@ -50,7 +67,13 @@ export const saveCurrentNote = async (
 
     if (!currentNote) return false;
 
-    const content = editor.action(getMarkdown());
+    const body = editor.action(getMarkdown());
+
+    const dateEl = document.getElementById("attributes__date") as HTMLInputElement;
+    const dateValue = dateEl?.value?.trim();
+    const content = dateValue
+        ? `---\ndate: ${dateValue}\n---\n${body}`
+        : body;
 
     const res = await fetch(`/api/notes/entries/${currentNote.uuid}`, {
         method: "PATCH",
