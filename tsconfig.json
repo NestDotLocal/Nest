@@ -22,15 +22,15 @@
         "noImplicitOverride": true,
 
         // Path aliases
-        "baseUrl": ".",
         "paths": {
-            "@nest/storage": ["src/lib/storage.ts"],
-            "@nest/room": ["src/lib/room.ts"],
-            "@nest/router": ["src/lib/router.ts"],
-            "@nest/cache": ["src/shared/cache.ts"],
-            "@nest/toast": ["src/shared/toast.ts"],
-            "@nest/keys": ["src/shared/keys.ts"],
-            "@nest/sidebar": ["src/shared/sidebar.ts"]
+            "@nest/storage": ["./src/lib/storage.ts"],
+            "@nest/room": ["./src/lib/room.ts"],
+            "@nest/router": ["./src/lib/router.ts"],
+            "@nest/cache": ["./src/shared/cache.ts"],
+            "@nest/toast": ["./src/shared/toast.ts"],
+            "@nest/keys": ["./src/shared/keys.ts"],
+            "@nest/sidebar": ["./src/shared/sidebar.ts"],
+            "@nest/rooms/*": ["./src/rooms/*"]
         },
 
         // Some stricter flags (disabled by default)
