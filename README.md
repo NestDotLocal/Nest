@@ -29,8 +29,3 @@ Run
 To start it (there is no building system), simply start the dev server with:
 
 `bun dev`
-
-> ![NOTE]
-> On first run, you might encounter an SQLite "CANTOPEN" error.
-> Simply create the "nest" directory in the source code's root.
-> Or, in the terminal, run `mkdir nest`.
