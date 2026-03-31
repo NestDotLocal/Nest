@@ -9,7 +9,7 @@
     transition:
         background var(--transition-speed),
         transform var(--transition-speed);
-    background: var(--color-surface);
+    background: var(--color-bg);
 }
 .btn:hover {
     color: var(--color-text);
