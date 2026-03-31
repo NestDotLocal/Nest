@@ -10,4 +10,11 @@ body {
     line-height: var(--line-height-base);
     color: var(--color-text);
     background: var(--color-bg);
+    width: 100%;
+    height: 100%;
+}
+
+html {
+    width: 100%;
+    height: 100%;
 }
