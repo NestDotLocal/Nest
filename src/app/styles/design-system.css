@@ -62,16 +62,16 @@
        Four layers as per four-two-three rule
     ------------------------- */
     --color-bg: oklch(97% 0.008 80); /* page background */
-    --color-bg-subtle: oklch(95% 0.01 80); /* inset areas, wells */
-    --color-surface: oklch(92% 0.01 80); /* cards, sidebars */
-    --color-surface-raised: oklch(89% 0.012 80); /* elevated cards, dropdowns */
+    --color-bg-subtle: oklch(96% 0.01 80); /* inset areas, wells */
+    --color-surface: oklch(95% 0.01 80); /* cards, sidebars */
+    --color-surface-raised: oklch(93% 0.012 80); /* elevated cards, dropdowns */
 
     /* -------------------------
        Borders — two variants
     ------------------------- */
-    --color-border: oklch(82% 0.01 80); /* subtle edges */
+    --color-border: oklch(91% 0.01 80); /* subtle edges */
     --color-border-strong: oklch(
-        72% 0.012 80
+        81% 0.012 80
     ); /* dividers, prominent separations */
 
     /* -------------------------
