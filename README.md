@@ -3,6 +3,8 @@
     <h3>Your data is yours, not ours.</h3>
 </div>
 
+<!-- Added for testing new feature branch -->
+
 ## Setting up
 
 ### Prerequisites
