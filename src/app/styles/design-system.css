@@ -83,27 +83,25 @@
         62% 0.005 80
     ); /* placeholders, disabled labels */
 
-    /* -------------------------
-       Accent scale (warm orange, hue ~50)
-       500/600 = main, 700 = hover, 400 = links, 100 = tinted backgrounds
-    ------------------------- */
-    --color-accent-100: oklch(96% 0.03 50);
-    --color-accent-200: oklch(90% 0.06 50);
-    --color-accent-300: oklch(84% 0.09 50);
-    --color-accent-400: oklch(78% 0.11 50);
-    --color-accent-500: oklch(72% 0.13 50);
-    --color-accent-600: oklch(66% 0.14 50);
-    --color-accent-700: oklch(60% 0.14 50);
-    --color-accent-800: oklch(50% 0.13 50);
-    --color-accent-900: oklch(38% 0.11 50);
+/* -------------------------
+        Accent scale (sage green-gray, hue 150)
+        500/600 = main, 700 = hover, 400 = links, 100 = tinted backgrounds
+     ------------------------- */
+    --color-accent-100: oklch(94% 0.02 150);
+    --color-accent-200: oklch(88% 0.03 150);
+    --color-accent-300: oklch(80% 0.04 150);
+    --color-accent-400: oklch(70% 0.05 150);
+    --color-accent-500: oklch(55% 0.07 150);
+    --color-accent-600: oklch(44% 0.07 150);
+    --color-accent-700: oklch(34% 0.06 150);
+    --color-accent-800: oklch(24% 0.05 150);
+    --color-accent-900: oklch(15% 0.03 150);
 
     /* Convenience aliases */
-    --color-accent: var(--color-accent-500);
+    --color-accent: var(--color-accent-600);
     --color-accent-hover: var(--color-accent-700);
-    --color-accent-link: var(--color-accent-400);
-    --color-text-on-accent: oklch(
-        18% 0.005 80
-    ); /* overwritten by JS luminance fn for user-picked accents */
+    --color-accent-link: var(--color-accent-500);
+    --color-text-on-accent: oklch(99% 0 0); /* overwritten by JS luminance fn for user-picked accents */
 
     /* -------------------------
        Semantic colors
@@ -136,10 +134,13 @@
        Shadows
     ------------------------- */
     --shadow-sm: 0 1px 3px oklch(20% 0.01 80 / 0.06);
-    --shadow-md: 0 4px 16px oklch(20% 0.01 80 / 0.08);
+--shadow-md: 0 4px 16px oklch(20% 0.01 80 / 0.08);
+
+    /* Focus ring */
+    --focus-ring-color: oklch(55% 0.07 150 / 0.3);
 
     /* -------------------------
-       Typography
+        Typography
     ------------------------- */
     --font-family:
         "Albert Sans", "Only Emoji", system-ui, -apple-system,
